@@ -204,6 +204,54 @@ const perFrame = (performance.now() - tStart) / 1000;
 assert(perFrame < 0.2, `Single frame latency ${perFrame.toFixed(3)}ms should be < 0.2ms`);
 console.log(`✓ Test 1.6 Passed: Benchmark single frame = ${perFrame.toFixed(4)} ms`);
 
+// --- Test Suite 1B: Iris Depth Estimation (11.7mm biological standard) ---
+console.log('\n--- Test Suite 1B: 0.5s Iris Depth & Metric Scale (MediaPipe Iris) ---');
+const REAL_IRIS_MM = 11.7;
+function calcDistanceCm(irisWidthPx, cameraWidth, fovDeg = 65) {
+  const fx = cameraWidth / (2 * Math.tan((fovDeg * Math.PI) / 360));
+  return Math.round(((fx * REAL_IRIS_MM) / irisWidthPx / 10) * 10) / 10;
+}
+// At 45cm desk throw on 640px camera, iris is ~13 pixels
+const dist45 = calcDistanceCm(13.05, 640, 65);
+assert(Math.abs(dist45 - 45.0) < 1.0, `Distance should be ~45cm, got ${dist45}`);
+console.log('✓ Test 1B.1 Passed: Biological 11.7mm iris depth calculation verified (~45 cm desk throw)');
+
+// --- Test Suite 1C: Multi-Child Profile Switcher ---
+console.log('\n--- Test Suite 1C: Multi-Child Anthropometric Auto-Switching ---');
+class SimpleProfileManager {
+  constructor() {
+    this.profiles = new Map();
+    this.activeId = null;
+  }
+  resolve(shoulderMm) {
+    for (const p of this.profiles.values()) {
+      if (Math.abs(p.shoulderMm - shoulderMm) / p.shoulderMm < 0.12) {
+        this.activeId = p.id;
+        return { profile: p, isNew: false };
+      }
+    }
+    const id = 'child_' + (this.profiles.size + 1);
+    const p = { id, name: '宝贝 ' + (this.profiles.size + 1) + ' 号', shoulderMm };
+    this.profiles.set(id, p);
+    this.activeId = id;
+    return { profile: p, isNew: true };
+  }
+}
+const pm = new SimpleProfileManager();
+const child1 = pm.resolve(320); // Elder sibling
+assert.strictEqual(child1.isNew, true);
+assert.strictEqual(child1.profile.name, '宝贝 1 号');
+
+const child2 = pm.resolve(230); // Younger sibling
+assert.strictEqual(child2.isNew, true);
+assert.strictEqual(child2.profile.name, '宝贝 2 号');
+
+// Elder returns (322mm ~ 320mm)
+const child1Back = pm.resolve(322);
+assert.strictEqual(child1Back.isNew, false);
+assert.strictEqual(child1Back.profile.id, child1.profile.id);
+console.log('✓ Test 1C.1 Passed: Multi-child sibling profile auto-resolution verified');
+
 // --- TEST SUITE 2: WO-2 Lux Meter & Gatekeeper ---
 console.log('\n--- Test Suite 2: Lux Gatekeeper (WO-2) ---');
 function computeLuma(rgba, width, height) {

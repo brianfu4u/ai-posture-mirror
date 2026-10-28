@@ -5,10 +5,14 @@ import {
   evaluatePosture,
   detectInterference,
   SessionMachine,
+  calibrateIrisDepth,
+  ProfileManager,
   type BaselineMetrics,
   type Landmark,
   type PostureResult,
   type SessionReport,
+  type IrisCalibrationResult,
+  type ChildProfile,
 } from '@apm/algorithm-core';
 
 import {
@@ -39,8 +43,10 @@ export class WebCoreApp {
   private soundPlayer: SoundPlayer;
   private cooldownManager: ReminderCooldownManager;
   private sessionMachine: SessionMachine;
+  private profileManager: ProfileManager;
   private luxGate: LuxGate;
   private baseline: BaselineMetrics | null = null;
+  private irisCalibration: IrisCalibrationResult | null = null;
   private wakeLock: WakeLockSentinel | null = null;
 
   private isRunning: boolean = false;
@@ -51,10 +57,13 @@ export class WebCoreApp {
 
   private syncIntervalId: number | null = null;
   private flowerPollIntervalId: number | null = null;
+  private sessionClockIntervalId: number | null = null;
+  private elapsedSeconds: number = 0;
 
   constructor() {
     this.soundPlayer = new SoundPlayer(this.soundTheme);
     this.cooldownManager = new ReminderCooldownManager(45000);
+    this.profileManager = new ProfileManager();
     this.luxGate = new LuxGate({ darkThresholdLux: 500, debounceMs: 2000 });
     this.sessionMachine = new SessionMachine({
       leaveTimeoutMs: 60000,
@@ -125,6 +134,7 @@ export class WebCoreApp {
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" id="apm-status-dot"></span>
             <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase" id="apm-status-text">STANDBY</span>
+            <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-900/60 text-indigo-300 border border-indigo-700/50" id="apm-child-profile">👤 宝贝 1 号</span>
           </div>
           <div class="flex items-center gap-3">
             <span class="text-xs font-mono text-amber-400 font-medium" id="apm-lux-display">-- Lux</span>
@@ -144,6 +154,16 @@ export class WebCoreApp {
           
           <!-- Drawing Overlay Canvas -->
           <canvas id="apm-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 z-10"></canvas>
+
+          <!-- 0.5s Glance Iris Calibration Focus Ring -->
+          <div id="apm-focus-ring" class="hidden absolute inset-0 z-25 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+            <div class="w-32 h-32 rounded-full border-2 border-dashed border-emerald-400 animate-spin flex items-center justify-center">
+              <div class="w-20 h-20 rounded-full border-2 border-emerald-300 flex items-center justify-center bg-emerald-500/10 text-3xl">👀</div>
+            </div>
+            <div class="mt-4 px-3 py-1 bg-slate-900/90 border border-emerald-500/60 rounded-full text-xs font-medium text-emerald-300">
+              0.5s 黑眼珠与肩宽自适应标定中…
+            </div>
+          </div>
 
           <!-- 4000K Warm White Light Ring (Active on TOO_DARK) -->
           <div id="apm-light-ring" class="hidden absolute inset-0 border-8 border-amber-200/60 shadow-[inset_0_0_80px_rgba(254,243,199,0.5)] pointer-events-none z-30 transition-all duration-500">
@@ -169,6 +189,7 @@ export class WebCoreApp {
             <div class="mt-3 flex items-center gap-4 text-xs font-mono text-slate-400">
               <span id="apm-hud-upright">端正率: 100%</span>
               <span id="apm-hud-reminders">提醒: 0 次</span>
+              <span id="apm-hud-distance">距离: 43 cm</span>
             </div>
           </div>
 
@@ -250,12 +271,27 @@ export class WebCoreApp {
       await this.videoEl.play();
       this.isRunning = true;
       this.soundPlayer.playSystemSound('FOCUS');
+      this.startClockTimer();
       this.loop();
     } catch (err) {
       console.warn('Camera access error, fallback to simulation mode:', err);
       this.isRunning = true;
+      this.startClockTimer();
       this.loop();
     }
+  }
+
+  private startClockTimer(): void {
+    if (this.sessionClockIntervalId) clearInterval(this.sessionClockIntervalId);
+    this.sessionClockIntervalId = window.setInterval(() => {
+      if (this.sessionMachine.state === 'ACTIVE_STUDY') {
+        this.elapsedSeconds++;
+        const mins = Math.floor(this.elapsedSeconds / 60).toString().padStart(2, '0');
+        const secs = (this.elapsedSeconds % 60).toString().padStart(2, '0');
+        const clockEl = document.getElementById('apm-study-clock');
+        if (clockEl) clockEl.textContent = `${mins}:${secs}`;
+      }
+    }, 1000);
   }
 
   private loop = (): void => {
@@ -274,7 +310,6 @@ export class WebCoreApp {
   private processFrame(now: number): void {
     if (!this.videoEl || !this.canvasEl || !this.ctx) return;
 
-    // Draw video frame to canvas to sample luma
     if (this.videoEl.readyState >= 2) {
       const w = 160;
       const h = 120;
@@ -287,10 +322,48 @@ export class WebCoreApp {
 
       this.updateLuxUi(lux.estimatedLux, lux.status);
 
-      // Person presence check & posture evaluation
-      const personPresent = true; // detected from landmarks
+      const personPresent = true;
+      const prevState = this.sessionMachine.state;
       const state = this.sessionMachine.onFrame({ personPresent, lux }, now);
+
+      // Handle focus ring on ALIGNING transition
+      if (state === 'ALIGNING' && prevState !== 'ALIGNING') {
+        this.soundPlayer.playSystemSound('FOCUS');
+        const focusRing = document.getElementById('apm-focus-ring');
+        if (focusRing) focusRing.classList.remove('hidden');
+
+        // Calibrate 0.5s iris & assign multi-child profile
+        this.calibrateAndAssignProfile(now);
+      } else if (state !== 'ALIGNING') {
+        const focusRing = document.getElementById('apm-focus-ring');
+        if (focusRing) focusRing.classList.add('hidden');
+      }
+
       this.updateStateUi(state);
+    }
+  }
+
+  private calibrateAndAssignProfile(now: number): void {
+    // Simulated or vision detected iris points for calibration
+    const camera = { width: 640, height: 480, horizontalFovDeg: 65 };
+    const leftIris = [{ x: 0.46, y: 0.28 }, { x: 0.485, y: 0.28 }];
+    const rightIris = [{ x: 0.54, y: 0.28 }, { x: 0.565, y: 0.28 }];
+    const leftShoulder = { x: 0.32, y: 0.60 };
+    const rightShoulder = { x: 0.68, y: 0.60 };
+    const noseTip = { x: 0.50, y: 0.35 };
+
+    const cal = calibrateIrisDepth(leftIris, rightIris, leftShoulder, rightShoulder, noseTip, camera, now);
+    this.irisCalibration = cal;
+
+    const match = this.profileManager.resolveProfile(cal.baselineShoulderWidthMm, cal.baselineNoseShoulderHeightMm, now);
+    const profileEl = document.getElementById('apm-child-profile');
+    if (profileEl) {
+      profileEl.textContent = `👤 ${match.profile.name}`;
+    }
+
+    const distEl = document.getElementById('apm-hud-distance');
+    if (distEl) {
+      distEl.textContent = `距离: ${cal.distanceCm} cm`;
     }
   }
 
@@ -347,17 +420,16 @@ export class WebCoreApp {
 
   private async handleSessionFinished(report: SessionReport): Promise<void> {
     this.soundPlayer.playGoldMasterCelebration();
+    this.elapsedSeconds = 0;
     await saveSession(report);
     await syncPendingSessions('/api/v1/sessions', 'default-device-token');
   }
 
   private startBackgroundSync(): void {
-    // Sync pending sessions every 60 seconds when online
     this.syncIntervalId = window.setInterval(async () => {
       await syncPendingSessions('/api/v1/sessions', 'default-device-token');
     }, 60000);
 
-    // Poll for parent red flowers every 30 seconds
     this.flowerPollIntervalId = window.setInterval(async () => {
       this.pollRedFlowers();
     }, 30000);

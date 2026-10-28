@@ -13,6 +13,16 @@
     </view>
   </view>
 
+  <!-- Child Profile Tabs -->
+  <view class="child-tabs">
+    <view class="child-tab {{ activeChildId === 'child_1' ? 'active' : '' }}" bindtap="switchChild" data-id="child_1">
+      👦 宝贝 1 号 (大宝)
+    </view>
+    <view class="child-tab {{ activeChildId === 'child_2' ? 'active' : '' }}" bindtap="switchChild" data-id="child_2">
+      👧 宝贝 2 号 (二宝)
+    </view>
+  </view>
+
   <!-- Today Summary -->
   <view class="card summary-card">
     <view class="section-title">今日坐姿成长概览</view>

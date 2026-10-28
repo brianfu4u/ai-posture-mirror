@@ -3,12 +3,14 @@ Page({
   data: {
     deviceName: '旧手机伴学镜 · 书桌 1 号',
     isOnline: true,
+    activeChildId: 'child_1',
     todayFocusMinutes: 45,
     todayUprightRate: 96,
     todayReminders: 2,
     sessions: [
       {
         sessionId: 'session_20261028_1830',
+        childId: 'child_1',
         timeFormatted: '18:30 - 19:15',
         durationMinutes: 45,
         uprightPercentage: 96,
@@ -17,6 +19,7 @@ Page({
       },
       {
         sessionId: 'session_20261028_1600',
+        childId: 'child_1',
         timeFormatted: '16:00 - 16:25',
         durationMinutes: 25,
         uprightPercentage: 98,
@@ -36,13 +39,64 @@ Page({
     });
   },
 
+  switchChild(e) {
+    const childId = e.currentTarget.dataset.id;
+    this.setData({ activeChildId: childId });
+
+    if (childId === 'child_2') {
+      // Sibling 2 metrics
+      this.setData({
+        todayFocusMinutes: 30,
+        todayUprightRate: 94,
+        todayReminders: 3,
+        sessions: [
+          {
+            sessionId: 'session_child2_01',
+            childId: 'child_2',
+            timeFormatted: '15:10 - 15:40',
+            durationMinutes: 30,
+            uprightPercentage: 94,
+            reminderCount: 3,
+            isZeroReminderMaster: false,
+          },
+        ],
+      });
+    } else {
+      // Sibling 1 metrics
+      this.setData({
+        todayFocusMinutes: 45,
+        todayUprightRate: 96,
+        todayReminders: 2,
+        sessions: [
+          {
+            sessionId: 'session_20261028_1830',
+            childId: 'child_1',
+            timeFormatted: '18:30 - 19:15',
+            durationMinutes: 45,
+            uprightPercentage: 96,
+            reminderCount: 2,
+            isZeroReminderMaster: false,
+          },
+          {
+            sessionId: 'session_20261028_1600',
+            childId: 'child_1',
+            timeFormatted: '16:00 - 16:25',
+            durationMinutes: 25,
+            uprightPercentage: 98,
+            reminderCount: 0,
+            isZeroReminderMaster: true,
+          },
+        ],
+      });
+    }
+  },
+
   async fetchDeviceData() {
     if (!wx.cloud) return;
     try {
       const db = wx.cloud.database();
       const res = await db.collection('session_reports').orderBy('createdAt', 'desc').limit(20).get();
       if (res.data && res.data.length > 0) {
-        // Update session list and stats
         let totalSecs = 0;
         let totalReminders = 0;
         let uprightWeighted = 0;

@@ -1,6 +1,7 @@
 import http from 'node:http';
 import { LineChannelClient } from './channels/line.js';
 import { WhatsAppChannelClient } from './channels/whatsapp.js';
+import { FirestoreStorageAdapter } from './storage/firestore.js';
 
 export interface OverseasSessionPayload {
   sessionId: string;
@@ -19,7 +20,7 @@ export interface OverseasSessionPayload {
 export interface UserProfile {
   userId: string;
   channel: 'line' | 'whatsapp';
-  channelId: string; // LINE userId or WhatsApp phone number
+  channelId: string;
   deviceId: string;
   locale: 'ja-JP' | 'zh-TW' | 'en-US';
   registeredAt: number;
@@ -28,8 +29,8 @@ export interface UserProfile {
 export class OverseasServer {
   private lineClient: LineChannelClient;
   private whatsappClient: WhatsAppChannelClient;
+  private storage: FirestoreStorageAdapter;
 
-  // In-memory persistent collections (or Firestore in production)
   private processedSessions = new Map<string, OverseasSessionPayload>();
   private users = new Map<string, UserProfile>();
   private devices = new Map<string, { deviceId: string; token: string; userId: string; pendingFlowers: number }>();
@@ -37,29 +38,30 @@ export class OverseasServer {
   constructor() {
     this.lineClient = new LineChannelClient();
     this.whatsappClient = new WhatsAppChannelClient();
+    this.storage = new FirestoreStorageAdapter();
 
-    // Default test seed device
     this.devices.set('default-device', {
       deviceId: 'default-device',
       token: 'default-device-token',
       userId: 'test-parent-user-1',
       pendingFlowers: 0,
     });
-    this.users.set('test-parent-user-1', {
+    const defaultUser: UserProfile = {
       userId: 'test-parent-user-1',
       channel: 'line',
       channelId: 'U1234567890abcdef',
       deviceId: 'default-device',
       locale: 'ja-JP',
       registeredAt: Date.now(),
-    });
+    };
+    this.users.set('test-parent-user-1', defaultUser);
+    this.storage.saveUser(defaultUser);
   }
 
   public handleRequest = async (req: http.IncomingMessage, res: http.ServerResponse): Promise<void> => {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const method = req.method || 'GET';
 
-    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Line-Signature, X-Hub-Signature-256');
@@ -71,7 +73,6 @@ export class OverseasServer {
     }
 
     try {
-      // 1. Health check
       if (method === 'GET' && url.pathname === '/healthz') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(
@@ -84,11 +85,7 @@ export class OverseasServer {
         return;
       }
 
-      // 2. Posture Session Sync (POST /v1/sessions)
       if (method === 'POST' && (url.pathname === '/v1/sessions' || url.pathname === '/api/v1/sessions')) {
-        const auth = req.headers['authorization'];
-        const token = auth?.replace('Bearer ', '').trim();
-
         const bodyStr = await this.readBody(req);
         const data = JSON.parse(bodyStr || '{}') as OverseasSessionPayload;
 
@@ -101,7 +98,6 @@ export class OverseasServer {
         const deviceId = data.deviceId || 'default-device';
         const idempotencyKey = `${deviceId}:${data.sessionId}`;
 
-        // Idempotency check: duplicate prevention
         if (this.processedSessions.has(idempotencyKey)) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true, message: 'Already processed', duplicate: true }));
@@ -109,8 +105,8 @@ export class OverseasServer {
         }
 
         this.processedSessions.set(idempotencyKey, data);
+        await this.storage.saveSession(data);
 
-        // Find associated parent user
         const dev = this.devices.get(deviceId);
         if (dev) {
           const user = this.users.get(dev.userId);
@@ -147,7 +143,36 @@ export class OverseasServer {
         return;
       }
 
-      // 3. Flower Reward Poll (GET /api/v1/flowers/poll)
+      // Weekly summary report query (GET /v1/users/:userId/weekly)
+      if (method === 'GET' && url.pathname.includes('/weekly')) {
+        const parts = url.pathname.split('/');
+        const userId = parts[parts.indexOf('users') + 1] || 'test-parent-user-1';
+        const summary = await this.storage.getWeeklySummary(userId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, summary }));
+        return;
+      }
+
+      // Trigger Weekly Carousel push to LINE (POST /v1/users/:userId/push-weekly)
+      if (method === 'POST' && url.pathname.includes('/push-weekly')) {
+        const parts = url.pathname.split('/');
+        const userId = parts[parts.indexOf('users') + 1] || 'test-parent-user-1';
+        const user = this.users.get(userId);
+        if (user && user.channel === 'line') {
+          const summary = await this.storage.getWeeklySummary(userId);
+          const carousel = this.lineClient.buildWeeklyCarousel({
+            totalMinutes: summary.totalFocusMinutes,
+            averageUpright: summary.averageUprightRate,
+            goldCount: summary.goldMasterCount,
+            locale: user.locale === 'ja-JP' ? 'ja-JP' : 'zh-TW',
+          });
+          await this.lineClient.pushMessage(user.channelId, carousel);
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+        return;
+      }
+
       if (method === 'GET' && (url.pathname === '/v1/flowers/poll' || url.pathname === '/api/v1/flowers/poll')) {
         const deviceId = url.searchParams.get('deviceId') || 'default-device';
         const dev = this.devices.get(deviceId);
@@ -161,7 +186,6 @@ export class OverseasServer {
         return;
       }
 
-      // 4. Send Flower Encouragement (POST /v1/flowers)
       if (method === 'POST' && (url.pathname === '/v1/flowers' || url.pathname === '/api/v1/flowers')) {
         const bodyStr = await this.readBody(req);
         const { deviceId } = JSON.parse(bodyStr || '{}');
@@ -174,8 +198,6 @@ export class OverseasServer {
         return;
       }
 
-      // 5. Data Deletion API (DELETE /v1/users/:userId)
-      // Compliance with Japan APPI, Singapore PDPA, HK PDPO, Taiwan Personal Data Protection Act
       if (method === 'DELETE' && url.pathname.startsWith('/v1/users/')) {
         const userId = url.pathname.replace('/v1/users/', '').trim();
         const user = this.users.get(userId);
@@ -183,8 +205,8 @@ export class OverseasServer {
           this.devices.delete(user.deviceId);
           this.users.delete(userId);
         }
+        await this.storage.deleteUserAndData(userId);
 
-        // Purge session history matching this user/device
         for (const [key] of this.processedSessions.entries()) {
           if (user && key.startsWith(`${user.deviceId}:`)) {
             this.processedSessions.delete(key);
@@ -196,7 +218,6 @@ export class OverseasServer {
         return;
       }
 
-      // 6. WhatsApp Webhook Verification (GET /webhooks/whatsapp)
       if (method === 'GET' && url.pathname === '/webhooks/whatsapp') {
         const mode = url.searchParams.get('hub.mode');
         const token = url.searchParams.get('hub.verify_token');
@@ -212,7 +233,6 @@ export class OverseasServer {
         return;
       }
 
-      // 7. LINE Webhook (POST /webhooks/line)
       if (method === 'POST' && url.pathname === '/webhooks/line') {
         const signature = req.headers['x-line-signature'] as string;
         const body = await this.readBody(req);
@@ -228,7 +248,6 @@ export class OverseasServer {
         return;
       }
 
-      // 404 Fallback
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Endpoint not found' }));
     } catch (err: any) {
@@ -254,7 +273,6 @@ export class OverseasServer {
   }
 }
 
-// Auto start if executed directly
 if (process.env.NODE_ENV !== 'test') {
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
   const server = new OverseasServer().createHttpServer();

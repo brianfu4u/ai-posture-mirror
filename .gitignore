@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+apps/web-core/public/models/*.task
+apps/web-core/public/wasm/
+project.private.config.json

@@ -1,0 +1,21 @@
+{
+  "name": "@apm/web-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apm/algorithm-core": "workspace:*",
+    "@apm/audio-assets": "workspace:*",
+    "@apm/i18n": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

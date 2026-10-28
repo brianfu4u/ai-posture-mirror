@@ -190,6 +190,76 @@ export class LineChannelClient {
   }
 
   /**
+   * Constructs a LINE Flex Message Carousel for weekly multi-day study progress.
+   */
+  public buildWeeklyCarousel(summary: {
+    totalMinutes: number;
+    averageUpright: number;
+    goldCount: number;
+    locale?: 'ja-JP' | 'zh-TW';
+  }): LineFlexMessage {
+    const isJa = summary.locale === 'ja-JP';
+    const altText = isJa ? '📊 週間姿勢成長レポート' : '📊 每週姿態成長總報';
+
+    return {
+      type: 'flex',
+      altText,
+      contents: {
+        type: 'carousel',
+        contents: [
+          // Bubble 1: Overview Summary
+          {
+            type: 'bubble',
+            size: 'kilo',
+            header: {
+              type: 'box',
+              layout: 'vertical',
+              backgroundColor: '#0F172A',
+              contents: [
+                {
+                  type: 'text',
+                  text: isJa ? '今週の成果まとめ' : '本週學習成果總覽',
+                  weight: 'bold',
+                  size: 'md',
+                  color: '#FFFFFF',
+                },
+              ],
+            },
+            body: {
+              type: 'box',
+              layout: 'vertical',
+              backgroundColor: '#1E293B',
+              contents: [
+                {
+                  type: 'text',
+                  text: isJa ? `総学習時間: ${summary.totalMinutes} 分` : `累計專注: ${summary.totalMinutes} 分鐘`,
+                  color: '#CBD5E1',
+                  size: 'sm',
+                },
+                {
+                  type: 'text',
+                  text: isJa ? `平均端正率: ${summary.averageUpright}%` : `平均端正率: ${summary.averageUpright}%`,
+                  color: '#34D399',
+                  size: 'sm',
+                  weight: 'bold',
+                  margin: 'md',
+                },
+                {
+                  type: 'text',
+                  text: isJa ? `ゴールド達成: ${summary.goldCount} 回` : `零提醒通關: ${summary.goldCount} 次`,
+                  color: '#FBBF24',
+                  size: 'sm',
+                  margin: 'md',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  /**
    * Pushes message to LINE parent user ID.
    */
   public async pushMessage(toUserId: string, message: LineFlexMessage): Promise<boolean> {

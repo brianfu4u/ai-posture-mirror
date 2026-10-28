@@ -37,6 +37,9 @@ import {
   getSetting,
 } from './db.js';
 
+import { SimpleQRCode } from './qrcode.js';
+import { HudRenderer } from './hud_renderer.js';
+
 export class WebCoreApp {
   private locale: Locale = 'zh-CN';
   private soundTheme: SoundTheme = 'cartoon';
@@ -45,6 +48,7 @@ export class WebCoreApp {
   private sessionMachine: SessionMachine;
   private profileManager: ProfileManager;
   private luxGate: LuxGate;
+  private hudRenderer: HudRenderer | null = null;
   private baseline: BaselineMetrics | null = null;
   private irisCalibration: IrisCalibrationResult | null = null;
   private wakeLock: WakeLockSentinel | null = null;
@@ -59,6 +63,7 @@ export class WebCoreApp {
   private flowerPollIntervalId: number | null = null;
   private sessionClockIntervalId: number | null = null;
   private elapsedSeconds: number = 0;
+  private deviceId: string = 'TK-SH-8821';
 
   constructor() {
     this.soundPlayer = new SoundPlayer(this.soundTheme);
@@ -136,8 +141,12 @@ export class WebCoreApp {
             <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase" id="apm-status-text">STANDBY</span>
             <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-900/60 text-indigo-300 border border-indigo-700/50" id="apm-child-profile">👤 宝贝 1 号</span>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2.5">
             <span class="text-xs font-mono text-amber-400 font-medium" id="apm-lux-display">-- Lux</span>
+            <button id="apm-btn-qr" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded border border-slate-700 font-medium flex items-center gap-1 transition">
+              <span>📱</span>
+              <span>绑定</span>
+            </button>
             <select id="apm-lang-select" class="bg-slate-800 text-xs border border-slate-700 rounded px-2 py-1 text-slate-200">
               <option value="zh-CN" ${this.locale === 'zh-CN' ? 'selected' : ''}>简体中文</option>
               <option value="zh-TW" ${this.locale === 'zh-TW' ? 'selected' : ''}>繁體中文</option>
@@ -149,8 +158,8 @@ export class WebCoreApp {
 
         <!-- Main Mirror & HUD Area -->
         <main class="relative flex-1 w-full h-full overflow-hidden bg-black flex items-center justify-center">
-          <!-- Video Element (Hidden or Mirrored) -->
-          <video id="apm-video" playsinline muted autoplay class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-20"></video>
+          <!-- Video Element (Mirrored) -->
+          <video id="apm-video" playsinline muted autoplay class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-25"></video>
           
           <!-- Drawing Overlay Canvas -->
           <canvas id="apm-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 z-10"></canvas>
@@ -203,11 +212,22 @@ export class WebCoreApp {
           </div>
 
           <!-- Parent Flower Reward Animation -->
-          <div id="apm-flower-toast" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div id="apm-flower-toast" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
             <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white p-6 rounded-3xl shadow-2xl text-center transform scale-110 animate-pulse">
               <div class="text-6xl mb-2">🌸</div>
               <h2 class="text-xl font-black">收到家长奖励的一朵小红花！</h2>
               <p class="text-xs text-rose-100 mt-1">今天坐得真端正，继续保持哦~</p>
+            </div>
+          </div>
+
+          <!-- QR Pairing Modal -->
+          <div id="apm-qr-modal" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl relative">
+              <button id="apm-btn-close-qr" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
+              <h3 class="font-bold text-sm text-slate-100 mb-1">家长微信/LINE 扫码绑定</h3>
+              <p class="text-[11px] text-slate-400 mb-3">绑定后孩子作业结束微信自动推送简报</p>
+              <div id="apm-qr-container" class="flex justify-center my-3 bg-white p-3 rounded-2xl"></div>
+              <p class="text-[10px] font-mono text-emerald-400 mt-2">设备号: #${this.deviceId}</p>
             </div>
           </div>
         </main>
@@ -225,6 +245,7 @@ export class WebCoreApp {
     this.canvasEl = document.getElementById('apm-canvas') as HTMLCanvasElement;
     if (this.canvasEl) {
       this.ctx = this.canvasEl.getContext('2d');
+      this.hudRenderer = new HudRenderer(this.canvasEl);
     }
   }
 
@@ -239,10 +260,35 @@ export class WebCoreApp {
       });
     }
 
+    // QR pairing button & modal handlers
+    const btnQr = document.getElementById('apm-btn-qr');
+    const qrModal = document.getElementById('apm-qr-modal');
+    const btnCloseQr = document.getElementById('apm-btn-close-qr');
+    const qrContainer = document.getElementById('apm-qr-container');
+
+    if (btnQr && qrModal && qrContainer) {
+      btnQr.addEventListener('click', () => {
+        const pairingUrl = `https://posture-mirror.web.app/bind?code=APM-8821&dev=${this.deviceId}`;
+        const qr = new SimpleQRCode(pairingUrl);
+        qrContainer.innerHTML = qr.toSVG({ size: 160 });
+        qrModal.classList.remove('hidden');
+      });
+    }
+
+    if (btnCloseQr && qrModal) {
+      btnCloseQr.addEventListener('click', () => {
+        qrModal.classList.add('hidden');
+      });
+    }
+
     // iOS Audio Unlock on first touch/click
-    window.addEventListener('click', () => {
-      this.soundPlayer.unlock();
-    }, { once: true });
+    window.addEventListener(
+      'click',
+      () => {
+        this.soundPlayer.unlock();
+      },
+      { once: true }
+    );
   }
 
   private updateUiStrings(): void {
@@ -286,7 +332,9 @@ export class WebCoreApp {
     this.sessionClockIntervalId = window.setInterval(() => {
       if (this.sessionMachine.state === 'ACTIVE_STUDY') {
         this.elapsedSeconds++;
-        const mins = Math.floor(this.elapsedSeconds / 60).toString().padStart(2, '0');
+        const mins = Math.floor(this.elapsedSeconds / 60)
+          .toString()
+          .padStart(2, '0');
         const secs = (this.elapsedSeconds % 60).toString().padStart(2, '0');
         const clockEl = document.getElementById('apm-study-clock');
         if (clockEl) clockEl.textContent = `${mins}:${secs}`;
@@ -339,12 +387,16 @@ export class WebCoreApp {
         if (focusRing) focusRing.classList.add('hidden');
       }
 
+      // Render HUD skeleton overlay & particles
+      if (this.hudRenderer) {
+        this.hudRenderer.render();
+      }
+
       this.updateStateUi(state);
     }
   }
 
   private calibrateAndAssignProfile(now: number): void {
-    // Simulated or vision detected iris points for calibration
     const camera = { width: 640, height: 480, horizontalFovDeg: 65 };
     const leftIris = [{ x: 0.46, y: 0.28 }, { x: 0.485, y: 0.28 }];
     const rightIris = [{ x: 0.54, y: 0.28 }, { x: 0.565, y: 0.28 }];
@@ -420,6 +472,9 @@ export class WebCoreApp {
 
   private async handleSessionFinished(report: SessionReport): Promise<void> {
     this.soundPlayer.playGoldMasterCelebration();
+    if (this.hudRenderer) {
+      this.hudRenderer.spawnGoldCelebration(40);
+    }
     this.elapsedSeconds = 0;
     await saveSession(report);
     await syncPendingSessions('/api/v1/sessions', 'default-device-token');
@@ -437,11 +492,14 @@ export class WebCoreApp {
 
   private async pollRedFlowers(): Promise<void> {
     try {
-      const res = await fetch('/api/v1/flowers/poll?deviceId=default-device');
+      const res = await fetch(`/api/v1/flowers/poll?deviceId=${this.deviceId}`);
       if (res.ok) {
         const data = await res.json();
         if (data.hasNewFlower) {
           this.soundPlayer.playReward('COIN');
+          if (this.hudRenderer) {
+            this.hudRenderer.spawnFlowerShower(30);
+          }
           const flowerToast = document.getElementById('apm-flower-toast');
           if (flowerToast) {
             flowerToast.classList.remove('hidden');

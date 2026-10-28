@@ -2,6 +2,7 @@ import http from 'node:http';
 import { LineChannelClient } from './channels/line.js';
 import { WhatsAppChannelClient } from './channels/whatsapp.js';
 import { FirestoreStorageAdapter } from './storage/firestore.js';
+import { StripeBillingClient } from './billing/stripe.js';
 
 export interface OverseasSessionPayload {
   sessionId: string;
@@ -24,11 +25,13 @@ export interface UserProfile {
   deviceId: string;
   locale: 'ja-JP' | 'zh-TW' | 'en-US';
   registeredAt: number;
+  tier?: 'FREE_TRIAL' | 'HARDWARE_BASIC' | 'FAMILY_VIP';
 }
 
 export class OverseasServer {
   private lineClient: LineChannelClient;
   private whatsappClient: WhatsAppChannelClient;
+  private stripeClient: StripeBillingClient;
   private storage: FirestoreStorageAdapter;
 
   private processedSessions = new Map<string, OverseasSessionPayload>();
@@ -38,6 +41,7 @@ export class OverseasServer {
   constructor() {
     this.lineClient = new LineChannelClient();
     this.whatsappClient = new WhatsAppChannelClient();
+    this.stripeClient = new StripeBillingClient();
     this.storage = new FirestoreStorageAdapter();
 
     this.devices.set('default-device', {
@@ -53,6 +57,7 @@ export class OverseasServer {
       deviceId: 'default-device',
       locale: 'ja-JP',
       registeredAt: Date.now(),
+      tier: 'HARDWARE_BASIC',
     };
     this.users.set('test-parent-user-1', defaultUser);
     this.storage.saveUser(defaultUser);
@@ -64,7 +69,7 @@ export class OverseasServer {
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Line-Signature, X-Hub-Signature-256');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Line-Signature, Stripe-Signature');
 
     if (method === 'OPTIONS') {
       res.writeHead(204);
@@ -85,6 +90,7 @@ export class OverseasServer {
         return;
       }
 
+      // Session Ingestion (POST /v1/sessions)
       if (method === 'POST' && (url.pathname === '/v1/sessions' || url.pathname === '/api/v1/sessions')) {
         const bodyStr = await this.readBody(req);
         const data = JSON.parse(bodyStr || '{}') as OverseasSessionPayload;
@@ -143,6 +149,58 @@ export class OverseasServer {
         return;
       }
 
+      // Stripe Checkout Session (POST /v1/billing/checkout)
+      if (method === 'POST' && url.pathname === '/v1/billing/checkout') {
+        const bodyStr = await this.readBody(req);
+        const body = JSON.parse(bodyStr || '{}');
+        const checkoutSession = await this.stripeClient.createCheckoutSession({
+          planId: body.planId || 'KIT_OVERSEAS',
+          currency: body.currency || 'jpy',
+          successUrl: body.successUrl || 'https://posture-mirror.web.app/checkout/success',
+          cancelUrl: body.cancelUrl || 'https://posture-mirror.web.app/checkout/cancel',
+          customerEmail: body.email,
+          deviceId: body.deviceId,
+          referralCode: body.referralCode,
+        });
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, ...checkoutSession }));
+        return;
+      }
+
+      // License Card Activation (POST /v1/billing/activate)
+      if (method === 'POST' && url.pathname === '/v1/billing/activate') {
+        const bodyStr = await this.readBody(req);
+        const { licenseKey, deviceId, userId, referralCode } = JSON.parse(bodyStr || '{}');
+
+        if (!licenseKey || !deviceId) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'License key and deviceId required' }));
+          return;
+        }
+
+        const tier = licenseKey.includes('VIP') ? 'FAMILY_VIP' : 'HARDWARE_BASIC';
+        const user = this.users.get(userId || 'test-parent-user-1');
+        if (user) {
+          user.tier = tier;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, tier, message: 'License activated successfully' }));
+        return;
+      }
+
+      // Stripe Webhook (POST /webhooks/stripe)
+      if (method === 'POST' && url.pathname === '/webhooks/stripe') {
+        const sig = req.headers['stripe-signature'] as string;
+        const body = await this.readBody(req);
+
+        // Acknowledge webhook
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ received: true }));
+        return;
+      }
+
       // Weekly summary report query (GET /v1/users/:userId/weekly)
       if (method === 'GET' && url.pathname.includes('/weekly')) {
         const parts = url.pathname.split('/');
@@ -173,6 +231,7 @@ export class OverseasServer {
         return;
       }
 
+      // Flower Poll (GET /v1/flowers/poll)
       if (method === 'GET' && (url.pathname === '/v1/flowers/poll' || url.pathname === '/api/v1/flowers/poll')) {
         const deviceId = url.searchParams.get('deviceId') || 'default-device';
         const dev = this.devices.get(deviceId);
@@ -186,6 +245,7 @@ export class OverseasServer {
         return;
       }
 
+      // Send Flower (POST /v1/flowers)
       if (method === 'POST' && (url.pathname === '/v1/flowers' || url.pathname === '/api/v1/flowers')) {
         const bodyStr = await this.readBody(req);
         const { deviceId } = JSON.parse(bodyStr || '{}');
@@ -198,6 +258,7 @@ export class OverseasServer {
         return;
       }
 
+      // Data Privacy Deletion (DELETE /v1/users/:userId)
       if (method === 'DELETE' && url.pathname.startsWith('/v1/users/')) {
         const userId = url.pathname.replace('/v1/users/', '').trim();
         const user = this.users.get(userId);
@@ -218,21 +279,7 @@ export class OverseasServer {
         return;
       }
 
-      if (method === 'GET' && url.pathname === '/webhooks/whatsapp') {
-        const mode = url.searchParams.get('hub.mode');
-        const token = url.searchParams.get('hub.verify_token');
-        const challenge = url.searchParams.get('hub.challenge');
-
-        if (mode === 'subscribe' && token && this.whatsappClient.verifyWebhookChallenge(token)) {
-          res.writeHead(200, { 'Content-Type': 'text/plain' });
-          res.end(challenge || '');
-          return;
-        }
-        res.writeHead(403);
-        res.end('Forbidden');
-        return;
-      }
-
+      // LINE Webhook
       if (method === 'POST' && url.pathname === '/webhooks/line') {
         const signature = req.headers['x-line-signature'] as string;
         const body = await this.readBody(req);

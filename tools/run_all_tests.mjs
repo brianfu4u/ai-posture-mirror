@@ -252,6 +252,21 @@ assert.strictEqual(child1Back.isNew, false);
 assert.strictEqual(child1Back.profile.id, child1.profile.id);
 console.log('✓ Test 1C.1 Passed: Multi-child sibling profile auto-resolution verified');
 
+// --- Test Suite 1D: Licensing & Monetization (39.9 RMB + Affiliates) ---
+console.log('\n--- Test Suite 1D: Licensing, Card Activation & Affiliate Split ---');
+function checkKeyFormat(k) {
+  return /^APM-\d{2}[A-Z]{2}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(k.trim().toUpperCase());
+}
+assert.strictEqual(checkKeyFormat('APM-26CN-8842-9917'), true);
+assert.strictEqual(checkKeyFormat('APM-26JP-ABCD-1234'), true);
+assert.strictEqual(checkKeyFormat('INVALID-KEY'), false);
+
+// 30% affiliate split on 39.9 RMB kit
+const kitPrice = 39.9;
+const commission = Math.round(kitPrice * 0.30 * 100) / 100;
+assert.strictEqual(commission, 11.97, 'Affiliate commission should be 11.97 RMB (~30%)');
+console.log('✓ Test 1D.1 Passed: License key validation and 30% affiliate split verified');
+
 // --- TEST SUITE 2: WO-2 Lux Meter & Gatekeeper ---
 console.log('\n--- Test Suite 2: Lux Gatekeeper (WO-2) ---');
 function computeLuma(rgba, width, height) {

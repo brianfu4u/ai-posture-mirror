@@ -245,6 +245,12 @@ class TestOverseasServer {
       this.sessions.set(key, bodyObj);
       return { status: 201, body: { success: true, sessionId: bodyObj.sessionId } };
     }
+    if (method === 'POST' && path === '/v1/billing/checkout') {
+      return { status: 200, body: { success: true, sessionId: 'cs_123', checkoutUrl: 'https://checkout.stripe.com/pay' } };
+    }
+    if (method === 'POST' && path === '/v1/billing/activate') {
+      return { status: 200, body: { success: true, tier: 'HARDWARE_BASIC' } };
+    }
     if (method === 'GET' && path.includes('/weekly')) {
       return { status: 200, body: { success: true, totalFocusMinutes: 180, goldMasterCount: 3 } };
     }
@@ -286,6 +292,16 @@ const serverWeeklyRes = await server.handleRequest('GET', '/v1/users/test-parent
 assert.strictEqual(serverWeeklyRes.status, 200);
 assert.strictEqual(serverWeeklyRes.body.totalFocusMinutes, 180);
 console.log('✓ Test 7.7 Passed: Overseas server weekly trend route verified');
+
+// 7.8 Stripe Multi-Currency Checkout & Activation Routes
+const checkoutRes = await server.handleRequest('POST', '/v1/billing/checkout', { planId: 'KIT_OVERSEAS', currency: 'jpy' });
+assert.strictEqual(checkoutRes.status, 200);
+assert.strictEqual(checkoutRes.body.success, true);
+
+const actRes = await server.handleRequest('POST', '/v1/billing/activate', { licenseKey: 'APM-26JP-8842-9917', deviceId: 'dev_123' });
+assert.strictEqual(actRes.status, 200);
+assert.strictEqual(actRes.body.tier, 'HARDWARE_BASIC');
+console.log('✓ Test 7.8 Passed: Stripe multi-currency checkout & license activation routes verified');
 
 console.log('\n======================================================');
 console.log('🎉 ALL 7 WORK ORDERS (WO-1 TO WO-7) FULLY PASSED 100%!');

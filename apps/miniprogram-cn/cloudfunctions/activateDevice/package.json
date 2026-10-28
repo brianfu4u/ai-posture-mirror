@@ -1,0 +1,9 @@
+{
+  "name": "activateDevice",
+  "version": "1.0.0",
+  "description": "Activate physical kit license card and attribute affiliate commission",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

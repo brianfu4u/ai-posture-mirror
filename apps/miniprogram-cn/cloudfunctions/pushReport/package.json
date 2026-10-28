@@ -1,0 +1,9 @@
+{
+  "name": "pushReport",
+  "version": "1.0.0",
+  "description": "Upload session report, write to CloudBase and send subscription message",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

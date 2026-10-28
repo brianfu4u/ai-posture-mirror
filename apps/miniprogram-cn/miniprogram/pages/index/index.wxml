@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- Device Header -->
+  <view class="card header-card">
+    <view class="device-row">
+      <view>
+        <view class="device-name">{{ deviceName || '伴学镜（书桌旧手机）' }}</view>
+        <view class="device-status">
+          <text class="status-dot {{ isOnline ? 'online' : 'offline' }}"></text>
+          <text>{{ isOnline ? '设备在线 · 伴学中' : '设备离线' }}</text>
+        </view>
+      </view>
+      <button class="scan-btn" bindtap="handleScanCode" size="mini">扫码换绑</button>
+    </view>
+  </view>
+
+  <!-- Today Summary -->
+  <view class="card summary-card">
+    <view class="section-title">今日坐姿成长概览</view>
+    <view class="grid-3">
+      <view class="grid-item">
+        <view class="grid-value text-emerald">{{ todayFocusMinutes }} <text class="unit">分钟</text></view>
+        <view class="grid-label">专注时长</view>
+      </view>
+      <view class="grid-item">
+        <view class="grid-value text-blue">{{ todayUprightRate }}<text class="unit">%</text></view>
+        <view class="grid-label">端正率</view>
+      </view>
+      <view class="grid-item">
+        <view class="grid-value text-amber">{{ todayReminders }} <text class="unit">次</text></view>
+        <view class="grid-label">主动提醒</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Session List -->
+  <view class="section-header">
+    <text class="section-title">写作业记录</text>
+    <text class="sub-label">实时同步</text>
+  </view>
+
+  <block wx:if="{{ sessions.length > 0 }}">
+    <view class="session-item card" wx:for="{{ sessions }}" wx:key="sessionId" bindtap="goToReport" data-id="{{ item.sessionId }}">
+      <view class="session-top">
+        <text class="session-time">{{ item.timeFormatted }}</text>
+        <view wx:if="{{ item.isZeroReminderMaster }}" class="gold-badge">🏆 零提醒黄金通关</view>
+      </view>
+      <view class="session-stats">
+        <text>时长: {{ item.durationMinutes }}分钟</text>
+        <text>端正率: {{ item.uprightPercentage }}%</text>
+        <text>提醒: {{ item.reminderCount }}次</text>
+      </view>
+    </view>
+  </block>
+  <block wx:else>
+    <view class="card empty-card">
+      <text class="empty-icon">📖</text>
+      <text class="empty-text">今天还没有学习记录，将旧手机架在支架上即可开始伴学</text>
+    </view>
+  </block>
+
+  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+</view>

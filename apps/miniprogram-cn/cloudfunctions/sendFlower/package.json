@@ -1,0 +1,9 @@
+{
+  "name": "sendFlower",
+  "version": "1.0.0",
+  "description": "Parent sends reward flower to desk companion phone",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -1,0 +1,55 @@
+<view class="container">
+  <!-- Gold Master Banner if achieved -->
+  <view wx:if="{{ report.isZeroReminderMaster }}" class="gold-master-banner">
+    <view class="gold-icon">🏆</view>
+    <view class="gold-title">零提醒黄金通关！</view>
+    <view class="gold-desc">本段专注作业超过 10 分钟且 0 次姿态提醒，太棒了！</view>
+  </view>
+
+  <!-- Core Metric Card -->
+  <view class="card report-card">
+    <view class="report-header">
+      <text class="report-date">{{ report.dateFormatted || '今日写作业' }}</text>
+      <text class="lux-badge {{ report.luxQualified ? 'lux-ok' : 'lux-warn' }}">
+        {{ report.luxQualified ? '💡 光线充足合格' : '⚠️ 曾有暗光' }}
+      </text>
+    </view>
+
+    <view class="stat-circle-box">
+      <view class="circle-val">{{ report.uprightPercentage }}<text class="pct">%</text></view>
+      <view class="circle-lbl">全程姿态端正率</view>
+    </view>
+
+    <view class="metric-row">
+      <view class="metric-col">
+        <view class="val">{{ report.durationMinutes }} <text class="unit">分钟</text></view>
+        <view class="lbl">专注时长</view>
+      </view>
+      <view class="divider"></view>
+      <view class="metric-col">
+        <view class="val text-amber">{{ report.reminderCount }} <text class="unit">次</text></view>
+        <view class="lbl">坐姿主动提醒</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Interactive Positive Action: Send Flower -->
+  <view class="card action-card">
+    <view class="action-title">给孩子的正向鼓励</view>
+    <view class="action-desc">点击送出一朵小红花，孩子的旧手机屏幕将立即绽放花朵并响起庆祝音！</view>
+    <button class="flower-btn {{ flowerSent ? 'sent' : '' }}" bindtap="handleSendFlower" disabled="{{ flowerSent }}">
+      <text class="flower-icon">🌸</text>
+      <text>{{ flowerSent ? '已送达！书桌魔镜正在绽放' : '送一朵小红花' }}</text>
+    </button>
+  </view>
+
+  <!-- Subscription Notice -->
+  <view class="sub-notice-box">
+    <button class="sub-btn" bindtap="handleSubscribe">
+      🔔 订阅下次作业结束微信提醒
+    </button>
+    <view class="sub-hint">点击后微信将在孩子离开书桌满 60 秒后自动向您推送简报</view>
+  </view>
+
+  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+</view>

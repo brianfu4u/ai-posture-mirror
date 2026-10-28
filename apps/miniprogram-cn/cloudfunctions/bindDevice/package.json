@@ -1,0 +1,9 @@
+{
+  "name": "bindDevice",
+  "version": "1.0.0",
+  "description": "Bind device pairing code to parent openid",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

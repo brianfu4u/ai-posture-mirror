@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 171.2 108" width="171.2mm" height="108mm">
+  <!-- Double-sided layout: Left Front (85.6x54mm), Right Back (85.6x54mm) -->
+  
+  <!-- FRONT (85.6 x 54 mm) -->
+  <g id="card_front" transform="translate(0, 0)">
+    <rect x="0" y="0" width="85.6" height="54" rx="3" fill="#0f172a" stroke="#334155" stroke-width="0.8" />
+    <text x="42.8" y="9" fill="#f8fafc" font-size="4.2" font-weight="bold" font-family="sans-serif" text-anchor="middle">旧手机 AI 护眼坐姿伴学魔镜</text>
+    <text x="42.8" y="13.5" fill="#38bdf8" font-size="2.6" font-family="monospace" text-anchor="middle">一分钟极速启动指南</text>
+
+    <!-- 3 Steps -->
+    <g transform="translate(6, 17)">
+      <circle cx="3" cy="4" r="2.5" fill="#10b981" />
+      <text x="3" y="5.2" fill="#ffffff" font-size="2.6" font-weight="bold" text-anchor="middle">1</text>
+      <text x="7.5" y="5" fill="#e2e8f0" font-size="2.8" font-family="sans-serif">铺垫子：绿条紧贴书桌前沿</text>
+
+      <circle cx="3" cy="12" r="2.5" fill="#10b981" />
+      <text x="3" y="13.2" fill="#ffffff" font-size="2.6" font-weight="bold" text-anchor="middle">2</text>
+      <text x="7.5" y="13" fill="#e2e8f0" font-size="2.8" font-family="sans-serif">放支架：放入圆圈，插上旧手机</text>
+
+      <circle cx="3" cy="20" r="2.5" fill="#10b981" />
+      <text x="3" y="21.2" fill="#ffffff" font-size="2.6" font-weight="bold" text-anchor="middle">3</text>
+      <text x="7.5" y="21" fill="#e2e8f0" font-size="2.8" font-family="sans-serif">开台灯：确保照度达 500~1000 Lux</text>
+    </g>
+
+    <!-- QR Code Mock for Parent Pairing -->
+    <g transform="translate(60, 24)">
+      <rect x="0" y="0" width="20" height="20" rx="1.5" fill="#ffffff" stroke="#94a3b8" stroke-width="0.5" />
+      <rect x="2" y="2" width="6" height="6" fill="#0f172a" />
+      <rect x="12" y="2" width="6" height="6" fill="#0f172a" />
+      <rect x="2" y="12" width="6" height="6" fill="#0f172a" />
+      <rect x="10" y="10" width="8" height="8" fill="#0f172a" opacity="0.8" />
+      <text x="10" y="23.5" fill="#94a3b8" font-size="2.1" font-family="sans-serif" text-anchor="middle">微信/LINE 扫码绑定</text>
+    </g>
+
+    <text x="42.8" y="51" fill="#64748b" font-size="2.2" font-family="monospace" text-anchor="middle">
+      Designed in Tokyo, Japan · Made in Shanghai, China
+    </text>
+  </g>
+
+  <!-- BACK (85.6 x 54 mm) -->
+  <g id="card_back" transform="translate(85.6, 0)">
+    <rect x="0" y="0" width="85.6" height="54" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.8" />
+    <text x="42.8" y="9" fill="#fbbf24" font-size="3.8" font-weight="bold" font-family="sans-serif" text-anchor="middle">💡 科学读写环境健康提示</text>
+
+    <g transform="translate(6, 15)">
+      <text x="0" y="3" fill="#cbd5e1" font-size="2.5" font-weight="bold">为什么“光线太暗”小魔镜会拒工？</text>
+      <text x="0" y="8" fill="#94a3b8" font-size="2.3">据眼科医学统计，长期在不足 500 Lux 的昏暗桌面写作业，</text>
+      <text x="0" y="12" fill="#94a3b8" font-size="2.3">睫状肌会持续严重痉挛，近视加深速度加快 3 倍以上！</text>
+
+      <text x="0" y="18" fill="#34d399" font-size="2.5" font-weight="bold">一尺一拳一寸标准原则：</text>
+      <text x="0" y="23" fill="#e2e8f0" font-size="2.3">• 眼睛离书本一尺（33 cm）</text>
+      <text x="0" y="27" fill="#e2e8f0" font-size="2.3">• 胸口离桌沿一拳（10 cm）</text>
+      <text x="0" y="31" fill="#e2e8f0" font-size="2.3">• 手指离笔尖一寸（3.3 cm）</text>
+    </g>
+
+    <text x="42.8" y="51" fill="#64748b" font-size="2.2" font-family="monospace" text-anchor="middle">
+      国家 AA 级读写照度标准：500 ~ 1000 Lux 护眼认证
+    </text>
+  </g>
+</svg>

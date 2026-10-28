@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400mm" height="300mm">
+  <defs>
+    <linearGradient id="matBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <pattern id="gridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#334155" stroke-width="0.3" stroke-opacity="0.4" />
+    </pattern>
+  </defs>
+
+  <!-- Mat Base 400x300mm -->
+  <rect x="0" y="0" width="400" height="300" rx="8" fill="url(#matBg)" stroke="#475569" stroke-width="1.5" />
+  <rect x="0" y="0" width="400" height="300" rx="8" fill="url(#gridPattern)" />
+
+  <!-- Left Ruler (1 foot / 300mm metric graduation) -->
+  <g id="ruler" transform="translate(12, 15)">
+    <line x1="0" y1="0" x2="0" y2="245" stroke="#94a3b8" stroke-width="1" />
+    <!-- 10mm tick marks -->
+    <path d="M 0 0 L 8 0 M 0 25 L 5 25 M 0 50 L 8 50 M 0 75 L 5 75 M 0 100 L 10 100 M 0 125 L 5 125 M 0 150 L 8 150 M 0 175 L 5 175 M 0 200 L 10 200 M 0 225 L 5 225 M 0 245 L 8 245" stroke="#94a3b8" stroke-width="0.8" />
+    <text x="14" y="103" fill="#64748b" font-size="7" font-family="monospace">10 cm</text>
+    <text x="14" y="203" fill="#64748b" font-size="7" font-family="monospace">20 cm (一尺护眼线)</text>
+  </g>
+
+  <!-- Phone Stand Target Placement Zone (Top Center, 12 deg tilt) -->
+  <g id="stand_target" transform="translate(200, 48)">
+    <circle cx="0" cy="0" r="28" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,2" />
+    <circle cx="0" cy="0" r="16" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="1" />
+    <path d="M -10 0 L 10 0 M 0 -10 L 0 10" stroke="#10b981" stroke-width="1" />
+    <text x="0" y="-34" fill="#34d399" font-size="7.5" font-weight="bold" font-family="sans-serif" text-anchor="middle">📱 手机支架放置圆圈 (固定后仰 12°)</text>
+    <text x="0" y="38" fill="#94a3b8" font-size="6" font-family="sans-serif" text-anchor="middle">Smart Phone Stand Target Zone</text>
+  </g>
+
+  <!-- Elementary Study Helper Graphics (Multiplication / Unit conversions) -->
+  <g id="study_formula" transform="translate(45, 120)" opacity="0.6">
+    <rect x="0" y="0" width="140" height="90" rx="4" fill="#0f172a" stroke="#334155" stroke-width="0.8" />
+    <text x="10" y="18" fill="#38bdf8" font-size="7" font-weight="bold" font-family="sans-serif">【长度单位换算与护眼一尺诀】</text>
+    <text x="10" y="34" fill="#cbd5e1" font-size="6" font-family="sans-serif">1 米 (m) = 10 分米 = 100 厘米 (cm)</text>
+    <text x="10" y="48" fill="#cbd5e1" font-size="6" font-family="sans-serif">眼离书本一尺（约 33 cm）</text>
+    <text x="10" y="62" fill="#cbd5e1" font-size="6" font-family="sans-serif">胸离桌缘一拳（约 10 cm）</text>
+    <text x="10" y="76" fill="#cbd5e1" font-size="6" font-family="sans-serif">手离笔尖一寸（约 3.3 cm）</text>
+  </g>
+
+  <!-- Lighting & Eye Care Standards Box -->
+  <g id="lux_guide" transform="translate(215, 120)" opacity="0.6">
+    <rect x="0" y="0" width="140" height="90" rx="4" fill="#0f172a" stroke="#334155" stroke-width="0.8" />
+    <text x="10" y="18" fill="#fbbf24" font-size="7" font-weight="bold" font-family="sans-serif">【国家读写作业照度健康指标】</text>
+    <text x="10" y="34" fill="#cbd5e1" font-size="6" font-family="sans-serif">国家 AA 级照度标准：500 ~ 1000 Lux</text>
+    <text x="10" y="48" fill="#cbd5e1" font-size="6" font-family="sans-serif">实测 &lt; 500 Lux 时系统自动停机报警</text>
+    <text x="10" y="62" fill="#cbd5e1" font-size="6" font-family="sans-serif">色温建议：4000K 暖白光（护眼不刺眼）</text>
+    <text x="10" y="76" fill="#cbd5e1" font-size="6" font-family="sans-serif">无频闪、无蓝光危害认证护眼台灯</text>
+  </g>
+
+  <!-- Bottom 25mm High-Contrast Fluorescent Green Alignment Band -->
+  <!-- Aligns strictly with front desk edge closest to child's belly -->
+  <g id="bottom_alignment_band">
+    <rect x="0" y="275" width="400" height="25" fill="#10b981" fill-opacity="0.25" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,2" />
+    <text x="200" y="291" fill="#ecfdf5" font-size="8" font-weight="bold" font-family="sans-serif" text-anchor="middle" letter-spacing="1.5">
+      ⬇️ 物理校准垫底边对齐带：请紧贴书桌前沿（贴近腹部一侧对齐） ⬇️
+    </text>
+  </g>
+
+  <!-- Brand Signature & Origin Label -->
+  <text x="200" y="266" fill="#94a3b8" font-size="6.5" font-family="monospace" text-anchor="middle" letter-spacing="0.8">
+    Designed in Tokyo, Japan · Made in Shanghai, China | 4000K Eye Care &amp; Posture Mirror Alignment Base
+  </text>
+</svg>

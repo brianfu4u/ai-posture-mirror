@@ -163,7 +163,7 @@ def b_cello():
 
 # ---------------- Theme C: 8-bit ----------------
 def c_fall():
-    return sweep(1400, 160, 0.45, "square") * env(at(0.45), 0.002, 0.03)
+    return lowpass(sweep(1400, 160, 0.45, "square"), 3) * env(at(0.45), 0.002, 0.03)
 
 
 def c_radar():

@@ -7,5 +7,8 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.test.json"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.0"
   }
 }

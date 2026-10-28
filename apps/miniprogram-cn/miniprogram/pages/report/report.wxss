@@ -96,6 +96,60 @@
   margin-top: 6rpx;
 }
 
+/* 5-day Improvement Trend */
+.trend-card {
+  padding: 28rpx;
+}
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.trend-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.trend-badge {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #10b981;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120rpx;
+  padding: 0 16rpx;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bar-fill {
+  width: 32rpx;
+  background-color: #475569;
+  border-radius: 6rpx 6rpx 0 0;
+}
+.bar-fill.h-12 { height: 96rpx; }
+.bar-fill.h-8 { height: 64rpx; }
+.bar-fill.h-6 { height: 48rpx; }
+.bar-fill.h-4 { height: 32rpx; }
+.bar-fill.h-1 { height: 12rpx; }
+.bar-fill.bg-emerald { background-color: #10b981; }
+.bar-label {
+  font-size: 18rpx;
+  color: #64748b;
+  margin-top: 8rpx;
+}
+.bar-label.text-emerald {
+  color: #34d399;
+  font-weight: bold;
+}
+
 .action-card {
   text-align: center;
   padding: 32rpx;

@@ -33,6 +33,36 @@
     </view>
   </view>
 
+  <!-- 5-Day Improvement Trend Card -->
+  <view class="card trend-card">
+    <view class="trend-header">
+      <text class="trend-title">📈 近 5 次作业被提醒次数对比</text>
+      <text class="trend-badge">下降 65% ▼</text>
+    </view>
+    <view class="bar-chart">
+      <view class="bar-col">
+        <view class="bar-fill h-12"></view>
+        <text class="bar-label">周一(6次)</text>
+      </view>
+      <view class="bar-col">
+        <view class="bar-fill h-8"></view>
+        <text class="bar-label">周二(4次)</text>
+      </view>
+      <view class="bar-col">
+        <view class="bar-fill h-6"></view>
+        <text class="bar-label">周三(3次)</text>
+      </view>
+      <view class="bar-col">
+        <view class="bar-fill h-4"></view>
+        <text class="bar-label">昨日(2次)</text>
+      </view>
+      <view class="bar-col highlight">
+        <view class="bar-fill h-1 bg-emerald"></view>
+        <text class="bar-label text-emerald">本次(0次)</text>
+      </view>
+    </view>
+  </view>
+
   <!-- Interactive Positive Action: Send Flower -->
   <view class="card action-card">
     <view class="action-title">给孩子的正向鼓励</view>

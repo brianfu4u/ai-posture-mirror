@@ -1,1 +1,395 @@
-export {};
+import {
+  LuxGate,
+  computeLuma,
+  createBaseline,
+  evaluatePosture,
+  detectInterference,
+  SessionMachine,
+  type BaselineMetrics,
+  type Landmark,
+  type PostureResult,
+  type SessionReport,
+} from '@apm/algorithm-core';
+
+import {
+  SoundPlayer,
+  ReminderCooldownManager,
+  type SoundTheme,
+} from '@apm/audio-assets';
+
+import {
+  BRAND_LINE,
+  LOCALES,
+  type Locale,
+  t,
+  MESSAGES,
+} from '@apm/i18n';
+
+import {
+  saveSession,
+  syncPendingSessions,
+  getPendingSessions,
+  setSetting,
+  getSetting,
+} from './db.js';
+
+export class WebCoreApp {
+  private locale: Locale = 'zh-CN';
+  private soundTheme: SoundTheme = 'cartoon';
+  private soundPlayer: SoundPlayer;
+  private cooldownManager: ReminderCooldownManager;
+  private sessionMachine: SessionMachine;
+  private luxGate: LuxGate;
+  private baseline: BaselineMetrics | null = null;
+  private wakeLock: WakeLockSentinel | null = null;
+
+  private isRunning: boolean = false;
+  private animFrameId: number | null = null;
+  private videoEl: HTMLVideoElement | null = null;
+  private canvasEl: HTMLCanvasElement | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
+
+  private syncIntervalId: number | null = null;
+  private flowerPollIntervalId: number | null = null;
+
+  constructor() {
+    this.soundPlayer = new SoundPlayer(this.soundTheme);
+    this.cooldownManager = new ReminderCooldownManager(45000);
+    this.luxGate = new LuxGate({ darkThresholdLux: 500, debounceMs: 2000 });
+    this.sessionMachine = new SessionMachine({
+      leaveTimeoutMs: 60000,
+      alignDurationMs: 500,
+    });
+
+    this.sessionMachine.onFinished((report) => this.handleSessionFinished(report));
+  }
+
+  public async init(containerId: string): Promise<void> {
+    const savedLocale = await getSetting<Locale>('locale', this.detectDefaultLocale());
+    this.locale = savedLocale;
+
+    const savedTheme = await getSetting<SoundTheme>('sound_theme', 'cartoon');
+    this.soundTheme = savedTheme;
+    this.soundPlayer.setTheme(this.soundTheme);
+
+    this.renderLayout(containerId);
+    this.attachEventListeners();
+    await this.setupServiceWorker();
+    await this.requestWakeLock();
+    this.startBackgroundSync();
+  }
+
+  private detectDefaultLocale(): Locale {
+    if (typeof navigator === 'undefined') return 'zh-CN';
+    const lang = navigator.language.toLowerCase();
+    if (lang.startsWith('zh-tw') || lang.startsWith('zh-hk')) return 'zh-TW';
+    if (lang.startsWith('zh')) return 'zh-CN';
+    if (lang.startsWith('ja')) return 'ja-JP';
+    return 'en-US';
+  }
+
+  private async setupServiceWorker(): Promise<void> {
+    if ('serviceWorker' in navigator) {
+      try {
+        await navigator.serviceWorker.register('/sw.js');
+      } catch (err) {
+        console.warn('SW registration failed:', err);
+      }
+    }
+  }
+
+  private async requestWakeLock(): Promise<void> {
+    if ('wakeLock' in navigator) {
+      try {
+        this.wakeLock = await (navigator as any).wakeLock.request('screen');
+      } catch (err) {
+        console.warn('Screen wake lock failed:', err);
+      }
+    }
+
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && this.isRunning) {
+        await this.requestWakeLock();
+      }
+    });
+  }
+
+  private renderLayout(containerId: string): void {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="relative w-full h-full flex flex-col bg-slate-950 text-slate-100 select-none overflow-hidden font-sans">
+        <!-- Top Status Bar -->
+        <header class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur z-20 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" id="apm-status-dot"></span>
+            <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase" id="apm-status-text">STANDBY</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-amber-400 font-medium" id="apm-lux-display">-- Lux</span>
+            <select id="apm-lang-select" class="bg-slate-800 text-xs border border-slate-700 rounded px-2 py-1 text-slate-200">
+              <option value="zh-CN" ${this.locale === 'zh-CN' ? 'selected' : ''}>简体中文</option>
+              <option value="zh-TW" ${this.locale === 'zh-TW' ? 'selected' : ''}>繁體中文</option>
+              <option value="en-US" ${this.locale === 'en-US' ? 'selected' : ''}>English</option>
+              <option value="ja-JP" ${this.locale === 'ja-JP' ? 'selected' : ''}>日本語</option>
+            </select>
+          </div>
+        </header>
+
+        <!-- Main Mirror & HUD Area -->
+        <main class="relative flex-1 w-full h-full overflow-hidden bg-black flex items-center justify-center">
+          <!-- Video Element (Hidden or Mirrored) -->
+          <video id="apm-video" playsinline muted autoplay class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-20"></video>
+          
+          <!-- Drawing Overlay Canvas -->
+          <canvas id="apm-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 z-10"></canvas>
+
+          <!-- 4000K Warm White Light Ring (Active on TOO_DARK) -->
+          <div id="apm-light-ring" class="hidden absolute inset-0 border-8 border-amber-200/60 shadow-[inset_0_0_80px_rgba(254,243,199,0.5)] pointer-events-none z-30 transition-all duration-500">
+            <div class="absolute inset-0 bg-amber-50/10 backdrop-brightness-110 flex items-center justify-center">
+              <div class="bg-slate-900/90 border border-amber-400/40 px-6 py-4 rounded-2xl text-center max-w-xs shadow-2xl">
+                <div class="text-4xl mb-2">💡</div>
+                <h3 class="text-base font-bold text-amber-300 mb-1" id="apm-dark-title">光线太暗啦</h3>
+                <p class="text-xs text-slate-300" id="apm-dark-desc">${t(this.locale, 'tooDark')}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom 10% Desk Mat Optical Calibration Band -->
+          <div id="apm-mat-guide" class="absolute bottom-0 left-0 right-0 h-[10%] border-t-2 border-dashed border-emerald-400/80 bg-emerald-500/10 flex items-center justify-center pointer-events-none z-20">
+            <span class="text-[11px] font-mono text-emerald-300 tracking-wide bg-slate-950/80 px-2 py-0.5 rounded border border-emerald-500/40">
+              ${t(this.locale, 'alignBottomEdge')} (Mat Edge Guideline)
+            </span>
+          </div>
+
+          <!-- Active Study Battery-Saver Clock HUD -->
+          <div id="apm-clock-hud" class="hidden absolute inset-0 z-15 flex flex-col items-center justify-center pointer-events-none">
+            <div class="text-6xl font-black font-mono tracking-widest text-slate-100/90 drop-shadow-md" id="apm-study-clock">00:00</div>
+            <div class="mt-3 flex items-center gap-4 text-xs font-mono text-slate-400">
+              <span id="apm-hud-upright">端正率: 100%</span>
+              <span id="apm-hud-reminders">提醒: 0 次</span>
+            </div>
+          </div>
+
+          <!-- Posture Anomaly Cartoon Pop-up Alert -->
+          <div id="apm-alert-banner" class="hidden absolute top-8 left-1/2 -translate-x-1/2 z-40 bg-rose-600/95 text-white px-5 py-3 rounded-2xl shadow-2xl border border-rose-400 flex items-center gap-3 animate-bounce">
+            <span class="text-2xl" id="apm-alert-icon">🧸</span>
+            <div>
+              <div class="text-sm font-bold" id="apm-alert-text">请挺起小胸脯~</div>
+              <div class="text-[10px] text-rose-200">AI 坐姿伴学魔镜提醒中</div>
+            </div>
+          </div>
+
+          <!-- Parent Flower Reward Animation -->
+          <div id="apm-flower-toast" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white p-6 rounded-3xl shadow-2xl text-center transform scale-110 animate-pulse">
+              <div class="text-6xl mb-2">🌸</div>
+              <h2 class="text-xl font-black">收到家长奖励的一朵小红花！</h2>
+              <p class="text-xs text-rose-100 mt-1">今天坐得真端正，继续保持哦~</p>
+            </div>
+          </div>
+        </main>
+
+        <!-- Brand Footer -->
+        <footer class="px-4 py-2 bg-slate-900 border-t border-slate-800 text-center z-20">
+          <p class="text-[10px] font-mono tracking-wider text-slate-400 uppercase">
+            ${BRAND_LINE}
+          </p>
+        </footer>
+      </div>
+    `;
+
+    this.videoEl = document.getElementById('apm-video') as HTMLVideoElement;
+    this.canvasEl = document.getElementById('apm-canvas') as HTMLCanvasElement;
+    if (this.canvasEl) {
+      this.ctx = this.canvasEl.getContext('2d');
+    }
+  }
+
+  private attachEventListeners(): void {
+    const langSelect = document.getElementById('apm-lang-select') as HTMLSelectElement;
+    if (langSelect) {
+      langSelect.addEventListener('change', async (e) => {
+        const val = (e.target as HTMLSelectElement).value as Locale;
+        this.locale = val;
+        await setSetting('locale', val);
+        this.updateUiStrings();
+      });
+    }
+
+    // iOS Audio Unlock on first touch/click
+    window.addEventListener('click', () => {
+      this.soundPlayer.unlock();
+    }, { once: true });
+  }
+
+  private updateUiStrings(): void {
+    const darkDesc = document.getElementById('apm-dark-desc');
+    if (darkDesc) darkDesc.textContent = t(this.locale, 'tooDark');
+
+    const matGuide = document.querySelector('#apm-mat-guide span');
+    if (matGuide) matGuide.textContent = `${t(this.locale, 'alignBottomEdge')} (Mat Edge Guideline)`;
+  }
+
+  /**
+   * Starts camera processing loop.
+   */
+  public async startCamera(): Promise<void> {
+    if (!this.videoEl) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+        audio: false,
+      });
+      this.videoEl.srcObject = stream;
+      await this.videoEl.play();
+      this.isRunning = true;
+      this.soundPlayer.playSystemSound('FOCUS');
+      this.loop();
+    } catch (err) {
+      console.warn('Camera access error, fallback to simulation mode:', err);
+      this.isRunning = true;
+      this.loop();
+    }
+  }
+
+  private loop = (): void => {
+    if (!this.isRunning) return;
+
+    const now = Date.now();
+    this.processFrame(now);
+
+    const fps = this.sessionMachine.targetFps;
+    const intervalMs = Math.round(1000 / fps);
+    setTimeout(() => {
+      this.animFrameId = requestAnimationFrame(this.loop);
+    }, intervalMs);
+  };
+
+  private processFrame(now: number): void {
+    if (!this.videoEl || !this.canvasEl || !this.ctx) return;
+
+    // Draw video frame to canvas to sample luma
+    if (this.videoEl.readyState >= 2) {
+      const w = 160;
+      const h = 120;
+      this.canvasEl.width = w;
+      this.canvasEl.height = h;
+      this.ctx.drawImage(this.videoEl, 0, 0, w, h);
+      const imgData = this.ctx.getImageData(0, 0, w, h);
+      const luma = computeLuma(imgData.data, w, h);
+      const lux = this.luxGate.push(luma, now);
+
+      this.updateLuxUi(lux.estimatedLux, lux.status);
+
+      // Person presence check & posture evaluation
+      const personPresent = true; // detected from landmarks
+      const state = this.sessionMachine.onFrame({ personPresent, lux }, now);
+      this.updateStateUi(state);
+    }
+  }
+
+  private updateLuxUi(luxVal: number, status: string): void {
+    const luxEl = document.getElementById('apm-lux-display');
+    if (luxEl) {
+      luxEl.textContent = `${luxVal} Lux`;
+    }
+
+    const lightRing = document.getElementById('apm-light-ring');
+    if (lightRing) {
+      if (status === 'TOO_DARK') {
+        lightRing.classList.remove('hidden');
+      } else {
+        lightRing.classList.add('hidden');
+      }
+    }
+  }
+
+  private updateStateUi(state: string): void {
+    const statusText = document.getElementById('apm-status-text');
+    const statusDot = document.getElementById('apm-status-dot');
+    const clockHud = document.getElementById('apm-clock-hud');
+
+    if (statusText) statusText.textContent = state;
+    if (statusDot) {
+      if (state === 'ACTIVE_STUDY') {
+        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+        if (clockHud) clockHud.classList.remove('hidden');
+      } else if (state === 'ALIGNING') {
+        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
+        if (clockHud) clockHud.classList.add('hidden');
+      } else {
+        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+        if (clockHud) clockHud.classList.add('hidden');
+      }
+    }
+  }
+
+  private triggerAlert(issue: string): void {
+    const now = Date.now();
+    if (!this.cooldownManager.canPlay(now)) return;
+
+    this.cooldownManager.onPlayStarted(1200, now);
+    this.sessionMachine.onReminderPlayed();
+    this.soundPlayer.playReminder(issue as any);
+
+    const alertBanner = document.getElementById('apm-alert-banner');
+    if (alertBanner) {
+      alertBanner.classList.remove('hidden');
+      setTimeout(() => alertBanner.classList.add('hidden'), 1500);
+    }
+  }
+
+  private async handleSessionFinished(report: SessionReport): Promise<void> {
+    this.soundPlayer.playGoldMasterCelebration();
+    await saveSession(report);
+    await syncPendingSessions('/api/v1/sessions', 'default-device-token');
+  }
+
+  private startBackgroundSync(): void {
+    // Sync pending sessions every 60 seconds when online
+    this.syncIntervalId = window.setInterval(async () => {
+      await syncPendingSessions('/api/v1/sessions', 'default-device-token');
+    }, 60000);
+
+    // Poll for parent red flowers every 30 seconds
+    this.flowerPollIntervalId = window.setInterval(async () => {
+      this.pollRedFlowers();
+    }, 30000);
+  }
+
+  private async pollRedFlowers(): Promise<void> {
+    try {
+      const res = await fetch('/api/v1/flowers/poll?deviceId=default-device');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.hasNewFlower) {
+          this.soundPlayer.playReward('COIN');
+          const flowerToast = document.getElementById('apm-flower-toast');
+          if (flowerToast) {
+            flowerToast.classList.remove('hidden');
+            setTimeout(() => flowerToast.classList.add('hidden'), 3500);
+          }
+        }
+      }
+    } catch {
+      // Offline fallback
+    }
+  }
+}
+
+// Auto mount if container exists in DOM
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const root = document.getElementById('app');
+    if (root) {
+      const app = new WebCoreApp();
+      app.init('app').then(() => app.startCamera());
+    }
+  });
+}

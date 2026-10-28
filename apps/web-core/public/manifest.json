@@ -1,0 +1,22 @@
+{
+  "name": "AI Posture Mirror / 护眼坐姿伴学镜",
+  "short_name": "PostureMirror",
+  "description": "旧手机 AI 护眼坐姿伴学魔镜 - Designed in Tokyo, Japan · Made in Shanghai, China",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

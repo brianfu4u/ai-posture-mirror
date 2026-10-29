@@ -192,13 +192,32 @@ export class WebCoreApp {
             </span>
           </div>
 
-          <!-- Active Study Battery-Saver Clock HUD -->
-          <div id="apm-clock-hud" class="hidden absolute inset-0 z-15 flex flex-col items-center justify-center pointer-events-none">
-            <div class="text-6xl font-black font-mono tracking-widest text-slate-100/90 drop-shadow-md" id="apm-study-clock">00:00</div>
-            <div class="mt-3 flex items-center gap-4 text-xs font-mono text-slate-400">
-              <span id="apm-hud-upright">端正率: 100%</span>
-              <span id="apm-hud-reminders">提醒: 0 次</span>
-              <span id="apm-hud-distance">距离: 43 cm</span>
+          <!-- ========================================================================= -->
+          <!-- 页面一：工作时的纯黑屏伴学页面 (VIEW A: WORKING PURE BLACK SCREEN OVERLAY)   -->
+          <!-- 零干扰、纯OLED黑屏、仅极小时间微弱跳动、轻触任意位置唤醒报告               -->
+          <!-- ========================================================================= -->
+          <div id="apm-pure-black-overlay" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-6 select-none cursor-pointer transition-opacity duration-300">
+            <div class="w-full flex items-center justify-between pointer-events-none">
+              <div class="flex items-center space-x-2 text-slate-500 font-mono text-xs sm:text-sm tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-emerald-500/80 animate-pulse"></span>
+                <span id="apm-black-mini-clock">00:00</span>
+                <span class="text-[10px] text-zinc-700 font-sans ml-1">· 伴学守护中</span>
+              </div>
+              <div class="text-[11px] text-zinc-700 font-mono">
+                <span id="apm-black-child-name">👦 大宝</span>
+              </div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center pointer-events-none">
+              <div class="text-center">
+                <div class="text-6xl sm:text-7xl font-mono font-medium tracking-widest text-zinc-700/80 mb-2 drop-shadow" id="apm-study-clock">00:00</div>
+                <p class="text-[11px] text-zinc-800 tracking-wider font-sans">专注书写中 · 离座自动保存新一段</p>
+              </div>
+            </div>
+
+            <div class="w-full flex items-center justify-between text-[11px] text-zinc-800 hover:text-zinc-500 transition px-1">
+              <span class="text-[9px] text-emerald-600">● 摄像头静音守护</span>
+              <span class="text-zinc-700">👆 轻触屏幕任意位置唤醒报告</span>
             </div>
           </div>
 
@@ -281,7 +300,15 @@ export class WebCoreApp {
       });
     }
 
-    // iOS Audio Unlock on first touch/click
+        // Tap pure black screen to wake up to report view
+    const blackOverlayEl = document.getElementById('apm-pure-black-overlay');
+    if (blackOverlayEl) {
+      blackOverlayEl.addEventListener('click', () => {
+        blackOverlayEl.classList.add('hidden');
+      });
+    }
+
+// iOS Audio Unlock on first touch/click
     window.addEventListener(
       'click',
       () => {
@@ -438,19 +465,19 @@ export class WebCoreApp {
   private updateStateUi(state: string): void {
     const statusText = document.getElementById('apm-status-text');
     const statusDot = document.getElementById('apm-status-dot');
-    const clockHud = document.getElementById('apm-clock-hud');
+    const blackOverlay = document.getElementById('apm-pure-black-overlay');
 
     if (statusText) statusText.textContent = state;
     if (statusDot) {
       if (state === 'ACTIVE_STUDY') {
         statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
-        if (clockHud) clockHud.classList.remove('hidden');
+        if (blackOverlay) blackOverlay.classList.remove('hidden');
       } else if (state === 'ALIGNING') {
         statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
-        if (clockHud) clockHud.classList.add('hidden');
+        if (blackOverlay) blackOverlay.classList.add('hidden');
       } else {
         statusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
-        if (clockHud) clockHud.classList.add('hidden');
+        if (blackOverlay) blackOverlay.classList.add('hidden');
       }
     }
   }

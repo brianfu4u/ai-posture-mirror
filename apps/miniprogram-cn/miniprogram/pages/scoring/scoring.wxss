@@ -1,1 +1,195 @@
-/* scoring.wxss */
+/* miniprogram/pages/scoring/scoring.wxss */
+.scoring-page {
+  padding: 24rpx 32rpx 140rpx;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 顶部总分深色卡片 */
+.total-score-card {
+  background: #1e293b;
+  border-radius: 28rpx;
+  padding: 32rpx 36rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28rpx;
+  box-shadow: 0 10rpx 24rpx rgba(15, 23, 42, 0.15);
+}
+
+.score-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.score-en {
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #64748b;
+  margin-top: 6rpx;
+}
+
+.score-right {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+}
+
+.score-num {
+  font-size: 72rpx;
+  font-weight: 900;
+  color: #38bdf8;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.score-unit {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* 题目卡片 */
+.question-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx 28rpx;
+  border: 1rpx solid #e2e8f0;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.03);
+  margin-bottom: 24rpx;
+}
+
+.q-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.q-num-label {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.q-tag {
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.q-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.score-rule-pill {
+  background: #fffbeb;
+  border: 1rpx solid #fef3c7;
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.rule-icon {
+  font-size: 22rpx;
+}
+
+.rule-txt {
+  font-size: 22rpx;
+  color: #d97706;
+  font-weight: 600;
+}
+
+/* 选项列表 */
+.options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 24rpx;
+  border-radius: 22rpx;
+  border: 1.5rpx solid #e2e8f0;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.option-selected {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+}
+
+.radio-outer {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 18rpx;
+  border: 3rpx solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.option-selected .radio-outer {
+  border-color: #0284c7;
+}
+
+.radio-inner {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 9rpx;
+  background: #0284c7;
+}
+
+.opt-score {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #0f172a;
+  margin-right: 18rpx;
+  min-width: 60rpx;
+}
+
+.option-selected .opt-score {
+  color: #0284c7;
+}
+
+.opt-desc {
+  font-size: 26rpx;
+  color: #475569;
+}
+
+.option-selected .opt-desc {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* 底部操作栏 */
+.scoring-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #e2e8f0;
+  box-shadow: 0 -4rpx 16rpx rgba(15, 23, 42, 0.04);
+}
+
+.btn-save-report {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  font-size: 32rpx !important;
+  font-weight: 700 !important;
+  border-radius: 44rpx !important;
+  padding: 22rpx 0 !important;
+}

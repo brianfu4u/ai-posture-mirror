@@ -1,4 +1,117 @@
-<view style="padding: 40rpx; text-align: center; color: #94a3b8;">
-  <view style="font-size: 36rpx; font-weight: bold; color: #38bdf8; margin-bottom: 20rpx;">眼脑协同 · 主控 Bento 仪表盘</view>
-  <view style="font-size: 24rpx; line-height: 1.6;">模块已成功接入全域统一架构系统。<br/>支持大宝/二宝档案共享与全流程数据闭环。</view>
+<!-- miniprogram/pages/home/home.wxml -->
+<view class="bento-container">
+
+  <!-- 用户个人卡片 (与眼脑测试系统完全一致) -->
+  <view class="user-strip-card" bindtap="navToProfile">
+    <view class="user-avatar-circle">
+      <view class="avatar-inner-icon"></view>
+    </view>
+    <view class="user-info-col">
+      <view class="user-name-title">您好，傅</view>
+      <view class="user-status-pill">
+        <text class="status-prefix">当前标准：</text>
+        <text class="status-child-name">G1-G2</text>
+      </view>
+    </view>
+    <view class="user-switch-link">
+      <text>个人中心</text>
+      <text class="chevron">›</text>
+    </view>
+  </view>
+
+  <!-- 核心 2x2 Bento 四宫格 (与眼脑测试系统完全一致) -->
+  <view class="bento-grid-2x2">
+
+    <!-- 格子 1：测试引导 (深蓝卡片) -->
+    <view class="bento-cell cell-dark" bindtap="navToPlayer">
+      <view class="cell-top-row">
+        <text class="cell-code text-cyan">SESSION_01</text>
+        <view class="play-icon-circle">
+          <view class="play-triangle"></view>
+        </view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title text-white">测试引导</view>
+        <view class="cell-sub-en text-muted">GUIDANCE</view>
+      </view>
+    </view>
+
+    <!-- 格子 2：在线打分 -->
+    <view class="bento-cell cell-white" bindtap="navToScoring">
+      <view class="cell-top-row">
+        <text class="cell-code">EVAL_02</text>
+        <view class="icon-mini">📝</view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">在线打分</view>
+        <view class="cell-sub-en">SCORING</view>
+      </view>
+    </view>
+
+    <!-- 格子 3：分析报告 -->
+    <view class="bento-cell cell-white" bindtap="navToReport">
+      <view class="cell-top-row">
+        <text class="cell-code">DATA_03</text>
+        <view class="icon-mini icon-chart">
+          <view class="chart-bar bar-1"></view>
+          <view class="chart-bar bar-2"></view>
+          <view class="chart-bar bar-3"></view>
+        </view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">分析报告</view>
+        <view class="cell-sub-en">REPORT</view>
+      </view>
+    </view>
+
+    <!-- 格子 4：使用指南 (彻底修复打不开的问题！) -->
+    <view class="bento-cell cell-white" bindtap="navToGuide">
+      <view class="cell-top-row">
+        <text class="cell-code">INFO_04</text>
+        <view class="icon-mini">💡</view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">使用指南</view>
+        <view class="cell-sub-en">GUIDE</view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 横向双分卡片 (官方商城 + 项目介绍，彻底修复打不开的问题！) -->
+  <view class="horizontal-strip-row">
+    <view class="sub-cell-half" bindtap="navToMall">
+      <view class="sub-cell-left">
+        <text class="sub-icon">🛒</text>
+        <text class="sub-title">官方商城</text>
+      </view>
+      <text class="chevron-sm">›</text>
+    </view>
+
+    <view class="sub-cell-half" bindtap="navToIntro">
+      <view class="sub-cell-left">
+        <text class="sub-icon">🏛️</text>
+        <text class="sub-title">项目介绍</text>
+      </view>
+      <text class="chevron-sm">›</text>
+    </view>
+  </view>
+
+  <!-- 底部预约专家大卡片 -->
+  <view class="booking-strip-card" bindtap="navToBooking">
+    <view class="booking-left">
+      <text class="booking-avatar-icon">🧑‍⚕️</text>
+      <text class="booking-title">预约专家视频解读</text>
+    </view>
+    <view class="booking-right">
+      <text class="booking-en">BOOKING</text>
+      <view class="booking-blue-dot"></view>
+    </view>
+  </view>
+
+  <!-- 底部版本声明 -->
+  <view class="bento-footer">
+    <view class="footer-version">V2.2.0 · PROFESSIONAL EDITION</view>
+  </view>
+
 </view>

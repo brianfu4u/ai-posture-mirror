@@ -424,7 +424,9 @@ export class WebCoreApp {
   }
 
   private calibrateAndAssignProfile(now: number): void {
-    const camera = { width: 640, height: 480, horizontalFovDeg: 65 };
+    const vw = this.videoEl?.videoWidth || 640;
+    const vh = this.videoEl?.videoHeight || 480;
+    const camera = { width: vw, height: vh, horizontalFovDeg: 65 };
     const leftIris = [{ x: 0.46, y: 0.28 }, { x: 0.485, y: 0.28 }];
     const rightIris = [{ x: 0.54, y: 0.28 }, { x: 0.565, y: 0.28 }];
     const leftShoulder = { x: 0.32, y: 0.60 };

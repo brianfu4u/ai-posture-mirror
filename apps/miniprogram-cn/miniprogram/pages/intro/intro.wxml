@@ -1,0 +1,85 @@
+<!-- miniprogram/pages/intro/intro.wxml -->
+<view class="intro-container">
+
+  <!-- 页面大标题 -->
+  <view class="intro-header">
+    <text class="intro-kicker">INTRODUCTION</text>
+    <view class="intro-title">儿童AI护眼坐姿伴学魔镜</view>
+  </view>
+
+  <!-- 重要提示黄色卡片 (与原系统完全一致) -->
+  <view class="notice-yellow-card">
+    <view class="notice-icon">⚠️</view>
+    <view class="notice-text">
+      <text class="notice-bold">重要提示：</text>本测试与伴学系统为非医疗类的儿童做作业习惯培养与视力健康辅助工具，旨在发现日常学习中的隐形视疲劳与不良体态。本产品不能代替医院的眼科医学检查。
+    </view>
+  </view>
+
+  <!-- 第一章节 -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">一、 这个伴学系统是做什么的？</text>
+    </view>
+    <view class="section-paragraph">
+      平时在学校查视力，通常只能知道孩子“看不得看清”，但这不能说明孩子在书桌前<text class="text-highlight">“看得累不累”</text>。
+    </view>
+    <view class="section-paragraph">
+      传统背背佳或铁支架外力束缚身体，孩子一旦脱下立刻打回原形。AI 护眼坐姿伴学魔镜遵循日本东京人机工学理念，通过手机前摄端侧 AI 视觉算法，在孩子写作业时全程进行纯黑屏静默守护。只有在发生持续低头趴桌、斜视歪头或暗光时，才瞬时触发柔和声光提醒，潜移默化培养自律好习惯。
+    </view>
+  </view>
+
+  <!-- 第二章节 (M1, M2, M3, M4 模块) -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">二、 主要培养孩子的哪些习惯？</text>
+    </view>
+
+    <view class="capability-item">
+      <view class="cap-badge">M1</view>
+      <view class="cap-body">
+        <view class="cap-name">护眼一尺安全距离</view>
+        <view class="cap-desc">眼睛离书本保持约 33~45 cm。当面部持续小于 30 cm 趴桌时，系统瞬时进行轻音微光提醒。</view>
+      </view>
+    </view>
+
+    <view class="capability-item">
+      <view class="cap-badge">M2</view>
+      <view class="cap-body">
+        <view class="cap-name">双肩水平防倾斜</view>
+        <view class="cap-desc">实时监控双肩与脊柱水平度，有效防止侧弯、歪头斜视与驼背做作业。</view>
+      </view>
+    </view>
+
+    <view class="capability-item">
+      <view class="cap-badge">M3</view>
+      <view class="cap-body">
+        <view class="cap-name">离线断网防沉迷</view>
+        <view class="cap-desc">支持开启飞行模式或断开 Wi-Fi 离线运行，彻底阻断微信游戏骚扰，100% 本地运算零隐私泄露。</view>
+      </view>
+    </view>
+
+    <view class="capability-item">
+      <view class="cap-badge">M4</view>
+      <view class="cap-body">
+        <view class="cap-name">500 Lux 台灯照度监控</view>
+        <view class="cap-desc">符合国家读写作业照度标准，书桌光线暗于 500 Lux 时主动报警，呵护孩子视力。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 第三章节 -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">三、 书桌标准物理安装规范</text>
+    </view>
+    <view class="section-paragraph">
+      配套 40×60 cm 硅胶桌垫平铺于书桌中央，中轴刻度线箭头正对孩子胸骨；多功能笔筒支架平稳放在左上角标定框内，自然形成 30° 黄金视场角与 16° 后仰角，距离孩子胸口 40~50 cm。手机立于卡槽内即可完成无死角覆盖。
+    </view>
+  </view>
+
+  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+
+</view>

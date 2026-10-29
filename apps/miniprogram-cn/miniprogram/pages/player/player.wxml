@@ -1,4 +1,47 @@
-<view style="padding: 40rpx; text-align: center; color: #94a3b8;">
-  <view style="font-size: 36rpx; font-weight: bold; color: #38bdf8; margin-bottom: 20rpx;">视听觉互动与眼动测试</view>
-  <view style="font-size: 24rpx; line-height: 1.6;">模块已成功接入全域统一架构系统。<br/>支持大宝/二宝档案共享与全流程数据闭环。</view>
+<!-- miniprogram/pages/player/player.wxml -->
+<view class="player-page">
+
+  <view class="player-header">
+    <text class="player-kicker">SESSION_01 · GUIDANCE</text>
+    <view class="player-title">眼脑协同视听互动引导</view>
+    <view class="player-sub">请受试孩子保持端正，双眼平视屏幕中的动点进行视线追踪：</view>
+  </view>
+
+  <!-- 视听觉追踪视窗 -->
+  <view class="tracking-screen-card">
+    <view class="tracking-viewport">
+      <view class="moving-dot {{ isPlaying ? 'dot-animated' : '' }}"></view>
+      <view class="track-axis"></view>
+      <view class="tracking-timer">{{ timerText }}</view>
+    </view>
+  </view>
+
+  <!-- 阶段步骤卡片 -->
+  <view class="stages-card">
+    <view class="stage-row">
+      <view class="stage-num">01</view>
+      <view class="stage-meta">
+        <view class="stage-head">阶段一：直线水平平移视线追踪</view>
+        <view class="stage-desc">双眼平滑追踪移动动点，头部保持平稳不晃动。</view>
+      </view>
+    </view>
+    <view class="stage-row">
+      <view class="stage-num">02</view>
+      <view class="stage-meta">
+        <view class="stage-head">阶段二：波浪与曲线视知觉锁定</view>
+        <view class="stage-desc">观察孩子在曲线折返时的凝视稳定性与反应灵敏度。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="player-actions">
+    <button class="btn-play-trigger {{ isPlaying ? 'btn-pause' : '' }}" bindtap="togglePlay">
+      {{ isPlaying ? '暂停引导练习' : '开始视听引导练习' }}
+    </button>
+    <button class="btn-go-score" bindtap="navToScoring">
+      完成练习，前往在线打分 ➔
+    </button>
+  </view>
+
 </view>

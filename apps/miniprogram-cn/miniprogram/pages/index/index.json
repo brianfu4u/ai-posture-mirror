@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "坐姿伴学简报",
-  "enablePullDownRefresh": true
+  "usingComponents": {},
+  "navigationBarTitleText": "儿童AI护眼坐姿伴学魔镜",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
 }

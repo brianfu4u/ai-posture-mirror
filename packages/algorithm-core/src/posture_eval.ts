@@ -14,6 +14,59 @@ export interface EvaluateOptions {
 }
 
 /**
+ * Automatically normalizes landmark coordinates if the phone is placed horizontally (Landscape)
+ * while its screen orientation lock is active (causing a 90° or 270° rotated camera feed).
+ * Detects the primary torso axis (Nose -> Shoulder Midpoint) and rotates into canonical upright space.
+ */
+export function normalizeLandmarksOrientation(lm: PoseLandmarks): PoseLandmarks {
+  const nose = lm[LM.NOSE];
+  const ls = lm[LM.LEFT_SHOULDER];
+  const rs = lm[LM.RIGHT_SHOULDER];
+
+  if (!nose || !ls || !rs) return lm;
+
+  const shoulderMidX = (ls.x + rs.x) / 2;
+  const shoulderMidY = (ls.y + rs.y) / 2;
+
+  const dx = shoulderMidX - nose.x;
+  const dy = shoulderMidY - nose.y;
+
+  // Normal upright: shoulders are below nose (dy > 0 and |dy| >= |dx|)
+  if (Math.abs(dy) >= Math.abs(dx)) {
+    if (dy >= 0) {
+      return lm; // 0° Normal Upright
+    } else {
+      // 180° Upside-down phone placement
+      const rotated: PoseLandmarks = {};
+      for (const k of Object.keys(lm)) {
+        const idx = Number(k);
+        const pt = lm[idx];
+        if (pt) {
+          rotated[idx] = { ...pt, x: 1 - pt.x, y: 1 - pt.y };
+        }
+      }
+      return rotated;
+    }
+  }
+
+  // Phone is placed horizontally with portrait lock active (|dx| > |dy|)
+  const rotated: PoseLandmarks = {};
+  for (const k of Object.keys(lm)) {
+    const idx = Number(k);
+    const pt = lm[idx];
+    if (!pt) continue;
+    if (dx > 0) {
+      // Shoulders are to the right of nose -> rotate 90° clockwise into upright (x' = 1 - y, y' = x)
+      rotated[idx] = { ...pt, x: 1 - pt.y, y: pt.x };
+    } else {
+      // Shoulders are to the left of nose -> rotate 90° counter-clockwise into upright (x' = y, y' = 1 - x)
+      rotated[idx] = { ...pt, x: pt.y, y: 1 - pt.x };
+    }
+  }
+  return rotated;
+}
+
+/**
  * Calculates Euclidean distance between two 3D landmarks.
  */
 function dist3d(a: Landmark, b: Landmark): number {
@@ -74,27 +127,28 @@ export function getFaceCenter(lm: PoseLandmarks): Landmark {
  * Detects if either hand is near the face (chin rest, rubbing eyes, drinking water).
  */
 export function detectInterference(lm: PoseLandmarks, th: PostureThresholds = DEFAULT_POSTURE_THRESHOLDS): boolean {
-  if (!areVisible(lm, [LM.NOSE, LM.LEFT_EYE, LM.RIGHT_EYE, LM.MOUTH_LEFT, LM.MOUTH_RIGHT])) {
+  const normLm = normalizeLandmarksOrientation(lm);
+  if (!areVisible(normLm, [LM.NOSE, LM.LEFT_EYE, LM.RIGHT_EYE, LM.MOUTH_LEFT, LM.MOUTH_RIGHT])) {
     return false;
   }
 
-  const leftEye = lm[LM.LEFT_EYE];
-  const rightEye = lm[LM.RIGHT_EYE];
+  const leftEye = normLm[LM.LEFT_EYE];
+  const rightEye = normLm[LM.RIGHT_EYE];
   const interEyeDist = dist3d(leftEye, rightEye);
   if (interEyeDist <= 0.0001) return false;
 
   const thresholdDist = th.interferenceFactor * interEyeDist;
-  const faceCenter = getFaceCenter(lm);
+  const faceCenter = getFaceCenter(normLm);
 
   // Check left wrist
-  if (areVisible(lm, [LM.LEFT_WRIST])) {
-    const d = dist3d(lm[LM.LEFT_WRIST], faceCenter);
+  if (areVisible(normLm, [LM.LEFT_WRIST])) {
+    const d = dist3d(normLm[LM.LEFT_WRIST], faceCenter);
     if (d < thresholdDist) return true;
   }
 
   // Check right wrist
-  if (areVisible(lm, [LM.RIGHT_WRIST])) {
-    const d = dist3d(lm[LM.RIGHT_WRIST], faceCenter);
+  if (areVisible(normLm, [LM.RIGHT_WRIST])) {
+    const d = dist3d(normLm[LM.RIGHT_WRIST], faceCenter);
     if (d < thresholdDist) return true;
   }
 
@@ -103,6 +157,7 @@ export function detectInterference(lm: PoseLandmarks, th: PostureThresholds = DE
 
 /**
  * Creates a posture baseline from a sequence of stable calibration frames (using medians).
+ * Automatically normalizes phone orientation (Portrait or Landscape).
  */
 export function createBaseline(frames: PoseLandmarks[]): PostureBaseline {
   if (frames.length === 0) {
@@ -112,7 +167,8 @@ export function createBaseline(frames: PoseLandmarks[]): PostureBaseline {
   const ratios: number[] = [];
   const widths: number[] = [];
 
-  for (const lm of frames) {
+  for (const rawLm of frames) {
+    const lm = normalizeLandmarksOrientation(rawLm);
     if (!areVisible(lm, [LM.NOSE, LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER])) continue;
 
     const ls = lm[LM.LEFT_SHOULDER];
@@ -145,13 +201,15 @@ export function createBaseline(frames: PoseLandmarks[]): PostureBaseline {
 
 /**
  * Evaluates human posture against a calibrated baseline.
+ * Supports both Portrait (竖放) and Landscape (横放) phone placements seamlessly.
  */
 export function evaluatePosture(
-  lm: PoseLandmarks,
+  rawLm: PoseLandmarks,
   baseline: PostureBaseline,
   th: PostureThresholds = DEFAULT_POSTURE_THRESHOLDS,
   opts: EvaluateOptions = {}
 ): PostureResult {
+  const lm = normalizeLandmarksOrientation(rawLm);
   const ar = opts.aspectRatio ?? 1.0;
   const issues: PostureIssue[] = [];
 

@@ -1,94 +1,154 @@
-// pages/report/report.js
+// miniprogram/pages/report/report.js
 Page({
   data: {
-    sessionId: '',
-    report: {
-      sessionId: '',
-      durationMinutes: 45,
-      uprightPercentage: 96,
-      reminderCount: 0,
-      isZeroReminderMaster: true,
-      luxQualified: true,
-      dateFormatted: '2026-10-28 18:30',
-    },
+    activeChildId: 'child_1',
+    todayDateFormatted: '今日写作业 · 10月28日',
+    todayFocusMinutes: 45,
+    todayUprightRate: 96,
+    todayReminders: 2,
+    isZeroReminderMaster: true,
     flowerSent: false,
+    sessions: [
+      {
+        sessionId: 'session_20261028_1830',
+        childId: 'child_1',
+        timeFormatted: '18:30 - 19:15',
+        durationMinutes: 45,
+        uprightPercentage: 96,
+        reminderCount: 2,
+        isZeroReminderMaster: false,
+      },
+      {
+        sessionId: 'session_20261028_1600',
+        childId: 'child_1',
+        timeFormatted: '16:00 - 16:25',
+        durationMinutes: 25,
+        uprightPercentage: 98,
+        reminderCount: 0,
+        isZeroReminderMaster: true,
+      },
+    ],
   },
 
-  onLoad(options) {
-    if (options.sessionId) {
-      this.setData({ sessionId: options.sessionId });
-      this.loadReport(options.sessionId);
-    }
+  onLoad() {
+    const cachedChild = wx.getStorageSync('apm_active_child') || 'child_1';
+    this.switchChildInternal(cachedChild);
+    this.loadCachedSessions();
   },
 
-  async loadReport(sessionId) {
-    if (!wx.cloud) return;
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection('session_reports').where({ 'report.sessionId': sessionId }).get();
-      if (res.data && res.data.length > 0) {
-        const doc = res.data[0];
-        const r = doc.report;
+  onShow() {
+    this.loadCachedSessions();
+  },
+
+  loadCachedSessions() {
+    const cached = wx.getStorageSync('apm_cached_sessions') || [];
+    if (cached.length > 0) {
+      const currentList = this.data.sessions || [];
+      const newItems = cached.filter((c) => !currentList.some((s) => s.sessionId === c.sessionId));
+      if (newItems.length > 0) {
+        const merged = [...newItems, ...currentList];
+        let totalMins = 0;
+        let totalRem = 0;
+        let uprightW = 0;
+
+        merged.forEach((item) => {
+          totalMins += item.durationMinutes;
+          totalRem += item.reminderCount;
+          uprightW += item.uprightPercentage * item.durationMinutes;
+        });
+
+        const avgUpright = totalMins > 0 ? Math.round(uprightW / totalMins) : 100;
+
         this.setData({
-          report: {
-            sessionId: r.sessionId,
-            durationMinutes: Math.round(r.durationSeconds / 60),
-            uprightPercentage: r.uprightPercentage,
-            reminderCount: r.reminderCount,
-            isZeroReminderMaster: r.isZeroReminderMaster,
-            luxQualified: r.luxQualified,
-            dateFormatted: new Date(doc.createdAt).toLocaleString(),
-          },
+          sessions: merged,
+          todayFocusMinutes: totalMins,
+          todayReminders: totalRem,
+          todayUprightRate: avgUpright,
         });
       }
-    } catch (e) {
-      console.warn('Failed to fetch session detail:', e);
     }
+  },
+
+  switchChild(e) {
+    const childId = e.currentTarget.dataset.id;
+    this.switchChildInternal(childId);
+  },
+
+  switchChildInternal(childId) {
+    this.setData({ activeChildId: childId });
+    wx.setStorageSync('apm_active_child', childId);
+
+    if (childId === 'child_2') {
+      this.setData({
+        todayFocusMinutes: 30,
+        todayUprightRate: 94,
+        todayReminders: 3,
+        isZeroReminderMaster: false,
+        sessions: [
+          {
+            sessionId: 'session_child2_01',
+            childId: 'child_2',
+            timeFormatted: '15:10 - 15:40',
+            durationMinutes: 30,
+            uprightPercentage: 94,
+            reminderCount: 3,
+            isZeroReminderMaster: false,
+          },
+        ],
+      });
+    } else {
+      this.setData({
+        todayFocusMinutes: 45,
+        todayUprightRate: 96,
+        todayReminders: 2,
+        isZeroReminderMaster: true,
+        sessions: [
+          {
+            sessionId: 'session_20261028_1830',
+            childId: 'child_1',
+            timeFormatted: '18:30 - 19:15',
+            durationMinutes: 45,
+            uprightPercentage: 96,
+            reminderCount: 2,
+            isZeroReminderMaster: false,
+          },
+          {
+            sessionId: 'session_20261028_1600',
+            childId: 'child_1',
+            timeFormatted: '16:00 - 16:25',
+            durationMinutes: 25,
+            uprightPercentage: 98,
+            reminderCount: 0,
+            isZeroReminderMaster: true,
+          },
+        ],
+      });
+    }
+    this.loadCachedSessions();
   },
 
   handleSendFlower() {
     if (this.data.flowerSent) return;
+    this.setData({ flowerSent: true });
 
-    wx.showLoading({ title: '送出中…' });
-    wx.cloud
-      .callFunction({
-        name: 'sendFlower',
-        data: { sessionId: this.data.sessionId },
-      })
-      .then((res) => {
-        wx.hideLoading();
-        if (res.result && res.result.success) {
-          wx.vibrateShort({ type: 'medium' });
-          this.setData({ flowerSent: true });
-          wx.showToast({
-            title: '小红花已送达书桌！',
-            icon: 'success',
-          });
-        } else {
-          wx.showToast({ title: '发送失败', icon: 'none' });
-        }
-      })
-      .catch(() => {
-        wx.hideLoading();
-        wx.showToast({ title: '网络异常', icon: 'none' });
-      });
+    try {
+      const audio = wx.createInnerAudioContext();
+      audio.src = '/sounds/cartoon_coin.wav';
+      audio.play();
+      wx.vibrateShort({ type: 'medium' });
+    } catch (_) {}
+
+    wx.showToast({
+      title: '鼓励已送达书桌屏幕！',
+      icon: 'success',
+      duration: 1500,
+    });
   },
 
   handleSubscribe() {
-    // WeChat One-Time Subscription Message template ID
-    const TEMPLATE_ID = 'tmpl_posture_session_finish';
-    wx.requestSubscribeMessage({
-      tmplIds: [TEMPLATE_ID],
-      success(res) {
-        if (res[TEMPLATE_ID] === 'accept') {
-          wx.showToast({ title: '订阅成功', icon: 'success' });
-        } else {
-          wx.showToast({ title: '已取消订阅', icon: 'none' });
-        }
-      },
-      fail() {
-        wx.showToast({ title: '订阅调用失败', icon: 'none' });
-      },
+    wx.showToast({
+      title: '已订阅离座微信服务通知',
+      icon: 'success',
     });
   },
 });

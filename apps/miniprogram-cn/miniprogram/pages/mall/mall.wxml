@@ -1,4 +1,187 @@
-<view style="padding: 40rpx; text-align: center; color: #94a3b8;">
-  <view style="font-size: 36rpx; font-weight: bold; color: #38bdf8; margin-bottom: 20rpx;">视觉训练与护眼伴学商城</view>
-  <view style="font-size: 24rpx; line-height: 1.6;">模块已成功接入全域统一架构系统。<br/>支持大宝/二宝档案共享与全流程数据闭环。</view>
+<!-- miniprogram/pages/mall/mall.wxml -->
+<view class="mall-page">
+
+  <!-- 顶部双商品切换 Tabs -->
+  <view class="product-tabs-bar">
+    <view class="prod-tab {{activeProduct === 'eyebrain' ? 'prod-active' : ''}}" bindtap="switchProduct" data-id="eyebrain">
+      <text class="tab-title">眼脑评测套装</text>
+      <text class="tab-price">¥88.00</text>
+    </view>
+    <view class="prod-tab {{activeProduct === 'posture' ? 'prod-active' : ''}}" bindtap="switchProduct" data-id="posture">
+      <text class="tab-title">伴学魔镜套装</text>
+      <text class="tab-price text-green">¥69.90</text>
+    </view>
+  </view>
+
+  <!-- ==================== 商品 1：儿童眼脑协同本能测试 套装 ==================== -->
+  <view wx:if="{{activeProduct === 'eyebrain'}}" class="product-view">
+
+    <!-- 顶部官方正品卡片与展示图 (复刻原版截图) -->
+    <view class="product-hero-card">
+      <view class="official-tag">官方正品</view>
+      <view class="product-illus-box">
+        <view class="eyebrain-logo-badge">
+          <view class="pencil-icon">✏️</view>
+          <view class="illus-title">眼脑协同本能测试</view>
+          <view class="illus-sub">EYE-BRAIN INSTINCT TEST</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 价格与商品标题 -->
+    <view class="product-info-card">
+      <view class="price-row">
+        <text class="currency">¥</text>
+        <text class="price-num">88.00</text>
+      </view>
+      <view class="product-title">儿童眼脑协同本能测试 专业评测套装（实体印制版）</view>
+      <view class="product-tags-row">
+        <text class="tag-badge tag-green">顺丰包邮</text>
+        <text class="tag-badge tag-blue">包含专业分析报告库</text>
+      </view>
+    </view>
+
+    <!-- 套件内容包含 (复刻原版截图) -->
+    <view class="product-detail-card">
+      <view class="detail-section-title">
+        <view class="blue-pill-bar"></view>
+        <text>套件内容包含</text>
+      </view>
+
+      <view class="kit-item">
+        <view class="kit-icon-box">📄</view>
+        <view class="kit-info">
+          <view class="kit-name">标准测试卷册 x 1</view>
+          <view class="kit-desc">包含 16 项手眼协同与视知觉任务的精印册</view>
+        </view>
+      </view>
+
+      <view class="kit-item">
+        <view class="kit-icon-box">📊</view>
+        <view class="kit-info">
+          <view class="kit-name">云端报告生成权限</view>
+          <view class="kit-desc">录入成绩后可生成全面专家诊断报告</view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- ==================== 商品 2：AI 护眼坐姿伴学魔镜 书桌套装 ==================== -->
+  <view wx:if="{{activeProduct === 'posture'}}" class="product-view">
+
+    <!-- 顶部官方正品卡片与展示图 -->
+    <view class="product-hero-card">
+      <view class="official-tag tag-emerald">官方正品 · 爆款首发</view>
+      <view class="product-illus-box box-posture">
+        <view class="posture-logo-badge">
+          <view class="mirror-icon">🪞</view>
+          <view class="illus-title">AI 护眼坐姿伴学魔镜</view>
+          <view class="illus-sub">POSTURE & VISION COMPANION KIT</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 价格与商品标题 -->
+    <view class="product-info-card">
+      <view class="price-row">
+        <text class="currency text-emerald">¥</text>
+        <text class="price-num text-emerald">69.90</text>
+        <text class="origin-price">¥89.90</text>
+        <text class="discount-pill">立减 20 元</text>
+      </view>
+      <view class="product-title">AI 护眼坐姿伴学魔镜 专业书桌套装（40×60cm 桌垫 + 30° 笔筒支架）</view>
+      <view class="product-tags-row">
+        <text class="tag-badge tag-green">顺丰包邮</text>
+        <text class="tag-badge tag-blue">赠终身端侧伴学授权</text>
+        <text class="tag-badge tag-green">食品级环保硅胶</text>
+      </view>
+    </view>
+
+    <!-- 套件内容包含 -->
+    <view class="product-detail-card">
+      <view class="detail-section-title">
+        <view class="blue-pill-bar bar-emerald"></view>
+        <text>套件内容包含</text>
+      </view>
+
+      <view class="kit-item">
+        <view class="kit-icon-box icon-emerald">📐</view>
+        <view class="kit-info">
+          <view class="kit-name">40×60 cm 环保食品级硅胶桌垫 x 1</view>
+          <view class="kit-desc">带胸口中轴对齐刻度、左上角 30° 笔筒框与护眼一尺线</view>
+        </view>
+      </view>
+
+      <view class="kit-item">
+        <view class="kit-icon-box icon-emerald">🪞</view>
+        <view class="kit-info">
+          <view class="kit-name">30° 多功能防滑笔筒支架 x 1</view>
+          <view class="kit-desc">已科学预设视场角与 16° 后仰角，横放竖放旧手机均可稳固使用</view>
+        </view>
+      </view>
+
+      <view class="kit-item">
+        <view class="kit-icon-box icon-emerald">🔑</view>
+        <view class="kit-info">
+          <view class="kit-name">终身 AI 视觉伴学授权卡 x 1</view>
+          <view class="kit-desc">刮开激活密钥，解锁端侧离线检测与终身坐姿数据分析档案</view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部固定购买操作栏 -->
+  <view class="bottom-buy-bar">
+    <view class="bar-left-actions">
+      <view class="bar-btn-icon" bindtap="handleFav">
+        <text class="icon-star">{{ isFav ? '★' : '☆' }}</text>
+        <text class="btn-label">{{ isFav ? '已收藏' : '收藏' }}</text>
+      </view>
+      <button class="bar-btn-icon btn-share" open-type="contact">
+        <text class="icon-chat">💬</text>
+        <text class="btn-label">客服</text>
+      </button>
+    </view>
+
+    <button class="btn-pay-now {{ activeProduct === 'posture' ? 'btn-pay-emerald' : '' }}" bindtap="handleStartPurchase">
+      <text class="btn-pay-txt">立即购买 · 微信支付</text>
+      <text class="btn-pay-price">{{ activeProduct === 'eyebrain' ? '¥88.00' : '¥69.90' }}</text>
+    </button>
+  </view>
+
+  <!-- 微信支付确认弹窗 -->
+  <view wx:if="{{showPayConfirmModal}}" class="pay-modal-mask" bindtap="closePayModal">
+    <view class="pay-modal-card" catchtap="noop">
+      <view class="pay-title">确认订单并微信支付</view>
+      <view class="pay-item-name">{{ activeProduct === 'eyebrain' ? '儿童眼脑协同本能测试 实体印制卷册套装' : 'AI 护眼坐姿伴学魔镜 书桌实物套装 (桌垫+笔筒)' }}</view>
+      <view class="pay-amount-box">
+        <text class="pay-u">¥</text>
+        <text class="pay-a">{{ activeProduct === 'eyebrain' ? '88.00' : '69.90' }}</text>
+      </view>
+      <view class="pay-shipping-tip">🚚 顺丰速运 · 全国包邮 · 24小时内发货</view>
+
+      <button class="btn-wechat-pay" bindtap="executeWeChatPay" loading="{{ paying }}">
+        微信安全支付
+      </button>
+      <button class="btn-cancel-pay" bindtap="closePayModal">
+        取消
+      </button>
+    </view>
+  </view>
+
+  <!-- 支付成功弹窗 -->
+  <view wx:if="{{showPaySuccessModal}}" class="pay-modal-mask">
+    <view class="pay-modal-card">
+      <view class="success-icon">🎉</view>
+      <view class="success-title">微信支付成功！</view>
+      <view class="order-no-txt">订单号：{{ paidOrderNo }}</view>
+      <view class="success-desc">实物套装将通过顺丰速运为您寄出，微信服务通知将同步推送物流单号与授权卡密钥。</view>
+      <button class="btn-wechat-pay" bindtap="finishPaySuccess">
+        完成
+      </button>
+    </view>
+  </view>
+
 </view>

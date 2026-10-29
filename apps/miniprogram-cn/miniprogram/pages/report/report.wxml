@@ -1,43 +1,57 @@
+<!-- miniprogram/pages/report/report.wxml -->
 <view class="container">
-  <!-- Gold Master Banner if achieved -->
-  <view wx:if="{{ report.isZeroReminderMaster }}" class="gold-master-banner">
-    <view class="gold-icon">🏆</view>
-    <view class="gold-title">零提醒黄金通关！</view>
-    <view class="gold-desc">本段专注作业超过 10 分钟且 0 次姿态提醒，太棒了！</view>
+
+  <!-- 顶部导航标题与孩子切换 -->
+  <view class="report-top-bar">
+    <text class="report-kicker">SESSION REPORT</text>
+    <view class="report-main-title">坐姿伴学简报</view>
+    <view class="child-tabs">
+      <view class="child-tab {{ activeChildId === 'child_1' ? 'active' : '' }}" bindtap="switchChild" data-id="child_1">
+        大宝 (10岁)
+      </view>
+      <view class="child-tab {{ activeChildId === 'child_2' ? 'active' : '' }}" bindtap="switchChild" data-id="child_2">
+        二宝 (7岁)
+      </view>
+    </view>
   </view>
 
-  <!-- Core Metric Card -->
+  <!-- 零提醒通关横幅 -->
+  <view wx:if="{{ isZeroReminderMaster }}" class="gold-master-banner">
+    <view class="gold-kicker">PERFECT FOCUS</view>
+    <view class="gold-title">零提醒黄金通关</view>
+    <view class="gold-desc">本段专注作业超过 10 分钟且 0 次姿态提醒，体态端正稳固。</view>
+  </view>
+
+  <!-- 今日核心指标卡片 -->
   <view class="card report-card">
     <view class="report-header">
-      <text class="report-date">{{ report.dateFormatted || '今日写作业' }}</text>
-      <text class="lux-badge {{ report.luxQualified ? 'lux-ok' : 'lux-warn' }}">
-        {{ report.luxQualified ? '💡 光线充足合格' : '⚠️ 曾有暗光' }}
-      </text>
+      <text class="report-date">{{ todayDateFormatted }}</text>
+      <text class="lux-badge lux-ok">500 Lux 台灯合格</text>
     </view>
 
     <view class="stat-circle-box">
-      <view class="circle-val">{{ report.uprightPercentage }}<text class="pct">%</text></view>
-      <view class="circle-lbl">全程姿态端正率</view>
+      <view class="circle-val">{{ todayUprightRate }}<text class="pct">%</text></view>
+      <view class="circle-lbl">今日坐姿端正率</view>
     </view>
 
     <view class="metric-row">
       <view class="metric-col">
-        <view class="val">{{ report.durationMinutes }} <text class="unit">分钟</text></view>
-        <view class="lbl">专注时长</view>
+        <view class="val text-emerald">{{ todayFocusMinutes }} <text class="unit">分钟</text></view>
+        <view class="lbl">累计专注时长</view>
       </view>
       <view class="divider"></view>
       <view class="metric-col">
-        <view class="val text-amber">{{ report.reminderCount }} <text class="unit">次</text></view>
+        <view class="val text-amber">{{ todayReminders }} <text class="unit">次</text></view>
         <view class="lbl">坐姿主动提醒</view>
       </view>
     </view>
   </view>
 
-  <!-- 5-Day Improvement Trend Card -->
+  <!-- 近 5 次作业被提醒次数对比柱状图 -->
   <view class="card trend-card">
     <view class="trend-header">
-      <text class="trend-title">📈 近 5 次作业被提醒次数对比</text>
-      <text class="trend-badge">下降 65% ▼</text>
+      <text class="trend-title">近 5 次作业姿态被提醒次数</text>
+      <text class="trend-badge">提醒下降 65% ▼</text>
     </view>
     <view class="bar-chart">
       <view class="bar-col">
@@ -63,23 +77,42 @@
     </view>
   </view>
 
-  <!-- Interactive Positive Action: Send Flower -->
+  <!-- 写作业历史明细列表 -->
+  <view class="section-header">
+    <text class="section-title">作业伴学记录</text>
+    <text class="sub-label">实时云同步</text>
+  </view>
+
+  <view class="session-list">
+    <view class="session-item card" wx:for="{{ sessions }}" wx:key="sessionId">
+      <view class="session-top">
+        <text class="session-time">{{ item.timeFormatted }}</text>
+        <view wx:if="{{ item.isZeroReminderMaster }}" class="gold-badge">零提醒通关</view>
+      </view>
+      <view class="session-stats">
+        <text>专注时长: {{ item.durationMinutes }}分钟</text>
+        <text class="text-blue">端正率: {{ item.uprightPercentage }}%</text>
+        <text class="text-amber">提醒: {{ item.reminderCount }}次</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 远程给孩子送出正向鼓励 -->
   <view class="card action-card">
     <view class="action-title">给孩子的正向鼓励</view>
-    <view class="action-desc">点击送出一朵小红花，孩子的旧手机屏幕将立即绽放花朵并响起庆祝音！</view>
+    <view class="action-desc">点击送出一朵小红花，孩子书桌上的工作手机屏幕将立即绽放花朵并响起庆祝音效。</view>
     <button class="flower-btn {{ flowerSent ? 'sent' : '' }}" bindtap="handleSendFlower" disabled="{{ flowerSent }}">
-      <text class="flower-icon">🌸</text>
-      <text>{{ flowerSent ? '已送达！书桌魔镜正在绽放' : '送一朵小红花' }}</text>
+      <text>{{ flowerSent ? '已送达书桌屏幕' : '向书桌屏幕送出鼓励花朵' }}</text>
     </button>
   </view>
 
-  <!-- Subscription Notice -->
+  <!-- 微信服务通知订阅 -->
   <view class="sub-notice-box">
     <button class="sub-btn" bindtap="handleSubscribe">
-      🔔 订阅下次作业结束微信提醒
+      订阅孩子离座微信服务通知
     </button>
-    <view class="sub-hint">点击后微信将在孩子离开书桌满 60 秒后自动向您推送简报</view>
+    <view class="sub-hint">孩子离开书桌满 60 秒或光线不足时自动推送提醒</view>
   </view>
 
-  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+  <view class="brand-text">Designed in Tokyo · Made in Shanghai</view>
 </view>

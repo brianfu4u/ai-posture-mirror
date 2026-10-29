@@ -1,1 +1,450 @@
-/* mall.wxss */
+/* miniprogram/pages/mall/mall.wxss */
+.mall-page {
+  padding: 24rpx 28rpx 140rpx;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 顶部商品切换条 */
+.product-tabs-bar {
+  display: flex;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 8rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid #e2e8f0;
+  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.03);
+}
+
+.prod-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0;
+  border-radius: 18rpx;
+  transition: all 0.2s ease;
+}
+
+.tab-title {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.tab-price {
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #0284c7;
+  margin-top: 4rpx;
+}
+
+.prod-tab.prod-active {
+  background: #f1f5f9;
+}
+
+.prod-tab.prod-active .tab-title {
+  color: #0f172a;
+}
+
+.text-green {
+  color: #059669 !important;
+}
+
+/* 商品大图展示卡片 */
+.product-hero-card {
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx;
+  position: relative;
+  border: 1rpx solid #e2e8f0;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.03);
+}
+
+.official-tag {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.tag-emerald {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #059669 !important;
+}
+
+.product-illus-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 0;
+}
+
+.eyebrain-logo-badge, .posture-logo-badge {
+  text-align: center;
+}
+
+.pencil-icon, .mirror-icon {
+  font-size: 96rpx;
+  margin-bottom: 16rpx;
+}
+
+.illus-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.illus-sub {
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #94a3b8;
+  margin-top: 6rpx;
+}
+
+/* 商品基础信息卡片 */
+.product-info-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx 28rpx;
+  border: 1rpx solid #e2e8f0;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.03);
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-bottom: 14rpx;
+}
+
+.currency {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.price-num {
+  font-size: 56rpx;
+  font-weight: 900;
+  color: #0284c7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.origin-price {
+  font-size: 26rpx;
+  color: #94a3b8;
+  text-decoration: line-through;
+  margin-left: 12rpx;
+}
+
+.discount-pill {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 4rpx 14rpx;
+  border-radius: 12rpx;
+  margin-left: 8rpx;
+}
+
+.text-emerald {
+  color: #059669 !important;
+}
+
+.product-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.45;
+  margin-bottom: 18rpx;
+}
+
+.product-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-badge {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 6rpx 18rpx;
+  border-radius: 14rpx;
+}
+
+.tag-green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.tag-blue {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+/* 套件内容包含卡片 */
+.product-detail-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx 28rpx;
+  border: 1rpx solid #e2e8f0;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.03);
+}
+
+.detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 24rpx;
+}
+
+.blue-pill-bar {
+  width: 8rpx;
+  height: 28rpx;
+  background: #0284c7;
+  border-radius: 4rpx;
+}
+
+.bar-emerald {
+  background: #059669 !important;
+}
+
+.kit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.kit-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.kit-icon-box {
+  width: 64rpx;
+  height: 64rpx;
+  background: #e0f2fe;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+}
+
+.icon-emerald {
+  background: #d1fae5 !important;
+}
+
+.kit-info {
+  flex: 1;
+}
+
+.kit-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6rpx;
+}
+
+.kit-desc {
+  font-size: 24rpx;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* 底部固定购买操作栏 */
+.bottom-buy-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(15, 23, 42, 0.05);
+  z-index: 99;
+}
+
+.bar-left-actions {
+  display: flex;
+  gap: 24rpx;
+}
+
+.bar-btn-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+.icon-star, .icon-chat {
+  font-size: 38rpx;
+  color: #64748b;
+  margin-bottom: 4rpx;
+}
+
+.btn-label {
+  font-size: 20rpx;
+  color: #64748b;
+}
+
+.btn-pay-now {
+  flex: 1;
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-radius: 44rpx !important;
+  height: 88rpx !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16rpx !important;
+  box-shadow: 0 8rpx 20rpx rgba(2, 132, 199, 0.35) !important;
+}
+
+.btn-pay-emerald {
+  background: #059669 !important;
+  box-shadow: 0 8rpx 20rpx rgba(5, 150, 105, 0.35) !important;
+}
+
+.btn-pay-txt {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.btn-pay-price {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+/* 支付弹窗 */
+.pay-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  z-index: 999;
+}
+
+.pay-modal-card {
+  width: 100%;
+  max-width: 600rpx;
+  background: #ffffff;
+  border-radius: 36rpx;
+  padding: 44rpx 36rpx;
+  text-align: center;
+  box-shadow: 0 20rpx 50rpx rgba(0, 0, 0, 0.2);
+}
+
+.pay-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 12rpx;
+}
+
+.pay-item-name {
+  font-size: 26rpx;
+  color: #64748b;
+  line-height: 1.4;
+  margin-bottom: 24rpx;
+}
+
+.pay-amount-box {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.pay-u {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.pay-a {
+  font-size: 64rpx;
+  font-weight: 900;
+  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.pay-shipping-tip {
+  font-size: 22rpx;
+  color: #059669;
+  margin-bottom: 36rpx;
+}
+
+.btn-wechat-pay {
+  background: #07c160 !important;
+  color: #ffffff !important;
+  font-size: 32rpx !important;
+  font-weight: 700 !important;
+  border-radius: 44rpx !important;
+  padding: 22rpx 0 !important;
+  margin-bottom: 16rpx !important;
+  box-shadow: 0 8rpx 20rpx rgba(7, 193, 96, 0.35) !important;
+}
+
+.btn-cancel-pay {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-size: 26rpx !important;
+  border: none !important;
+}
+
+.success-icon {
+  font-size: 96rpx;
+  margin-bottom: 16rpx;
+}
+
+.success-title {
+  font-size: 38rpx;
+  font-weight: 800;
+  color: #07c160;
+  margin-bottom: 10rpx;
+}
+
+.order-no-txt {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 20rpx;
+}
+
+.success-desc {
+  font-size: 26rpx;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 36rpx;
+}

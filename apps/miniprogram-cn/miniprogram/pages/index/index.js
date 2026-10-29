@@ -1,170 +1,135 @@
-// pages/index/index.js
+// miniprogram/pages/index/index.js
 Page({
   data: {
-    deviceName: '旧手机伴学镜 · 书桌 1 号',
-    isOnline: true,
     activeChildId: 'child_1',
-    todayFocusMinutes: 45,
-    todayUprightRate: 96,
-    todayReminders: 2,
-    sessions: [
-      {
-        sessionId: 'session_20261028_1830',
-        childId: 'child_1',
-        timeFormatted: '18:30 - 19:15',
-        durationMinutes: 45,
-        uprightPercentage: 96,
-        reminderCount: 2,
-        isZeroReminderMaster: false,
-      },
-      {
-        sessionId: 'session_20261028_1600',
-        childId: 'child_1',
-        timeFormatted: '16:00 - 16:25',
-        durationMinutes: 25,
-        uprightPercentage: 98,
-        reminderCount: 0,
-        isZeroReminderMaster: true,
-      },
-    ],
+    systemMode: 'single', // 'single': 单机两用, 'dual': 双机联动
+    offlineModeEnabled: true,
+    showOfflinePromptModal: false,
   },
 
   onLoad() {
-    this.fetchDeviceData();
-  },
-
-  onPullDownRefresh() {
-    this.fetchDeviceData().then(() => {
-      wx.stopPullDownRefresh();
+    const savedMode = wx.getStorageSync('apm_system_mode') || 'single';
+    const savedChild = wx.getStorageSync('apm_active_child') || 'child_1';
+    const savedOffline = wx.getStorageSync('apm_offline_mode');
+    this.setData({
+      systemMode: savedMode,
+      activeChildId: savedChild,
+      offlineModeEnabled: savedOffline !== false,
     });
   },
 
-  switchChild(e) {
-    const childId = e.currentTarget.dataset.id;
-    this.setData({ activeChildId: childId });
+  onShow() {
+    const savedChild = wx.getStorageSync('apm_active_child') || 'child_1';
+    this.setData({ activeChildId: savedChild });
+  },
 
-    if (childId === 'child_2') {
-      // Sibling 2 metrics
-      this.setData({
-        todayFocusMinutes: 30,
-        todayUprightRate: 94,
-        todayReminders: 3,
-        sessions: [
-          {
-            sessionId: 'session_child2_01',
-            childId: 'child_2',
-            timeFormatted: '15:10 - 15:40',
-            durationMinutes: 30,
-            uprightPercentage: 94,
-            reminderCount: 3,
-            isZeroReminderMaster: false,
-          },
-        ],
-      });
+  toggleChild() {
+    const next = this.data.activeChildId === 'child_1' ? 'child_2' : 'child_1';
+    this.setData({ activeChildId: next });
+    wx.setStorageSync('apm_active_child', next);
+    wx.showToast({
+      title: next === 'child_2' ? '已切至二宝 (7岁)' : '已切至大宝 (10岁)',
+      icon: 'none',
+      duration: 1200,
+    });
+  },
+
+  toggleSystemMode() {
+    const next = this.data.systemMode === 'single' ? 'dual' : 'single';
+    this.setData({ systemMode: next });
+    wx.setStorageSync('apm_system_mode', next);
+    wx.showToast({
+      title: next === 'single' ? '已切为单机两用模式' : '已切为双机常态联动',
+      icon: 'none',
+      duration: 1200,
+    });
+  },
+
+  toggleOfflineMode(e) {
+    const enabled = e.detail.value;
+    this.setData({ offlineModeEnabled: enabled });
+    wx.setStorageSync('apm_offline_mode', enabled);
+    wx.showToast({
+      title: enabled ? '已开启离线断网守护' : '已关闭离线断网提示',
+      icon: 'none',
+    });
+  },
+
+  // 1. SESSION_01: 书桌伴学
+  startDeskCompanion() {
+    if (this.data.offlineModeEnabled) {
+      this.setData({ showOfflinePromptModal: true });
     } else {
-      // Sibling 1 metrics
-      this.setData({
-        todayFocusMinutes: 45,
-        todayUprightRate: 96,
-        todayReminders: 2,
-        sessions: [
-          {
-            sessionId: 'session_20261028_1830',
-            childId: 'child_1',
-            timeFormatted: '18:30 - 19:15',
-            durationMinutes: 45,
-            uprightPercentage: 96,
-            reminderCount: 2,
-            isZeroReminderMaster: false,
-          },
-          {
-            sessionId: 'session_20261028_1600',
-            childId: 'child_1',
-            timeFormatted: '16:00 - 16:25',
-            durationMinutes: 25,
-            uprightPercentage: 98,
-            reminderCount: 0,
-            isZeroReminderMaster: true,
-          },
-        ],
-      });
+      this.navigateToCompanion(false);
     }
   },
 
-  async fetchDeviceData() {
-    if (!wx.cloud) return;
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection('session_reports').orderBy('createdAt', 'desc').limit(20).get();
-      if (res.data && res.data.length > 0) {
-        let totalSecs = 0;
-        let totalReminders = 0;
-        let uprightWeighted = 0;
-
-        const list = res.data.map((item) => {
-          const r = item.report;
-          totalSecs += r.durationSeconds;
-          totalReminders += r.reminderCount;
-          uprightWeighted += r.uprightPercentage * r.durationSeconds;
-
-          return {
-            sessionId: r.sessionId,
-            timeFormatted: new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            durationMinutes: Math.round(r.durationSeconds / 60),
-            uprightPercentage: r.uprightPercentage,
-            reminderCount: r.reminderCount,
-            isZeroReminderMaster: r.isZeroReminderMaster,
-          };
-        });
-
-        const totalMinutes = Math.round(totalSecs / 60);
-        const avgUpright = totalSecs > 0 ? Math.round(uprightWeighted / totalSecs) : 100;
-
-        this.setData({
-          sessions: list,
-          todayFocusMinutes: totalMinutes,
-          todayReminders: totalReminders,
-          todayUprightRate: avgUpright,
-        });
-      }
-    } catch (e) {
-      console.warn('Load sessions failed:', e);
-    }
+  confirmStartOffline() {
+    this.setData({ showOfflinePromptModal: false });
+    this.navigateToCompanion(true);
   },
 
-  handleScanCode() {
-    wx.scanCode({
-      onlyFromCamera: true,
-      scanType: ['qrCode'],
-      success: (res) => {
-        const pairingCode = res.result;
-        wx.showLoading({ title: '绑定中…' });
-        wx.cloud
-          .callFunction({
-            name: 'bindDevice',
-            data: { pairingCode },
-          })
-          .then((bindRes) => {
-            wx.hideLoading();
-            if (bindRes.result && bindRes.result.success) {
-              wx.showToast({ title: '绑定成功！', icon: 'success' });
-              this.fetchDeviceData();
-            } else {
-              wx.showToast({ title: bindRes.result?.error || '绑定失败', icon: 'none' });
-            }
-          })
-          .catch(() => {
-            wx.hideLoading();
-            wx.showToast({ title: '网络异常', icon: 'none' });
-          });
+  confirmStartOnline() {
+    this.setData({ showOfflinePromptModal: false });
+    this.navigateToCompanion(false);
+  },
+
+  closeOfflineModal() {
+    this.setData({ showOfflinePromptModal: false });
+  },
+
+  noop() {},
+
+  navigateToCompanion(isOffline) {
+    wx.navigateTo({
+      url: `/pages/live/live?autoStart=true&offline=${isOffline}&mode=${this.data.systemMode}`,
+      fail: (err) => {
+        console.error('Navigate to companion failed:', err);
+        wx.showToast({ title: '无法打开伴学屏', icon: 'none' });
       },
     });
   },
 
-  goToReport(e) {
-    const id = e.currentTarget.dataset.id;
+  // 2. DATA_02: 分析报告
+  openReportCenter() {
     wx.navigateTo({
-      url: `/pages/report/report?sessionId=${id}`,
+      url: '/pages/report/report',
+      fail: (err) => {
+        console.error('Navigate to report center failed:', err);
+        wx.showToast({ title: '无法打开分析报告', icon: 'none' });
+      },
+    });
+  },
+
+  // 3. GUIDE_03: 安装指南
+  openGuidePage() {
+    wx.navigateTo({
+      url: '/pages/guide/guide',
+      fail: (err) => {
+        console.error('Navigate to guide failed:', err);
+        wx.showToast({ title: '无法打开安装指南', icon: 'none' });
+      },
+    });
+  },
+
+  // 4. INFO_04: 产品说明
+  openIntroPage() {
+    wx.navigateTo({
+      url: '/pages/intro/intro',
+      fail: (err) => {
+        console.error('Navigate to intro failed:', err);
+        wx.showToast({ title: '无法打开产品说明', icon: 'none' });
+      },
+    });
+  },
+
+  // 5. 官方商城
+  navToMall() {
+    wx.navigateTo({
+      url: '/pages/mall/mall',
+      fail: () => {
+        wx.showToast({ title: '官方商城加载中', icon: 'none' });
+      },
     });
   },
 });

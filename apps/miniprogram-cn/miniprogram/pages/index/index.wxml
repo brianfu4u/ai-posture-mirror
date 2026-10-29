@@ -1,72 +1,145 @@
-<view class="container">
-  <!-- Device Header -->
-  <view class="card header-card">
-    <view class="device-row">
-      <view>
-        <view class="device-name">{{ deviceName || '伴学镜（书桌旧手机）' }}</view>
-        <view class="device-status">
-          <text class="status-dot {{ isOnline ? 'online' : 'offline' }}"></text>
-          <text>{{ isOnline ? '设备在线 · 伴学中' : '设备离线' }}</text>
+<!-- miniprogram/pages/index/index.wxml -->
+<view class="bento-container">
+
+  <!-- 1. 顶部用户身份与受试孩子卡片 (与眼脑测试系统完全一致) -->
+  <view class="user-strip-card">
+    <view class="user-avatar-circle">
+      <view class="avatar-inner-icon"></view>
+    </view>
+    <view class="user-info-col">
+      <view class="user-name-title">您好，傅</view>
+      <view class="user-status-pill">
+        <text class="status-prefix">当前守护：</text>
+        <text class="status-child-name">{{ activeChildId === 'child_2' ? '二宝 (7岁)' : '大宝 (10岁)' }}</text>
+      </view>
+    </view>
+    <view class="user-switch-link" bindtap="toggleChild">
+      <text>切换宝贝</text>
+      <text class="chevron">›</text>
+    </view>
+  </view>
+
+  <!-- 2. 核心 2x2 Bento 四宫格 (与眼脑测试系统完全一致的模块排布) -->
+  <view class="bento-grid-2x2">
+
+    <!-- 格子 1：书桌伴学 (旗舰深蓝卡片) -->
+    <view class="bento-cell cell-dark" bindtap="startDeskCompanion">
+      <view class="cell-top-row">
+        <text class="cell-code text-cyan">SESSION_01</text>
+        <view class="play-icon-circle">
+          <view class="play-triangle"></view>
         </view>
       </view>
-      <button class="scan-btn" bindtap="handleScanCode" size="mini">扫码换绑</button>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title text-white">书桌伴学</view>
+        <view class="cell-sub-en text-muted">COMPANION</view>
+      </view>
+    </view>
+
+    <!-- 格子 2：分析报告 (白色卡片) -->
+    <view class="bento-cell cell-white" bindtap="openReportCenter">
+      <view class="cell-top-row">
+        <text class="cell-code">DATA_02</text>
+        <view class="icon-mini icon-chart">
+          <view class="chart-bar bar-1"></view>
+          <view class="chart-bar bar-2"></view>
+          <view class="chart-bar bar-3"></view>
+        </view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">分析报告</view>
+        <view class="cell-sub-en">REPORT</view>
+      </view>
+    </view>
+
+    <!-- 格子 3：安装指南 (白色卡片) -->
+    <view class="bento-cell cell-white" bindtap="openGuidePage">
+      <view class="cell-top-row">
+        <text class="cell-code">GUIDE_03</text>
+        <view class="icon-mini icon-bulb">💡</view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">安装指南</view>
+        <view class="cell-sub-en">SETUP GUIDE</view>
+      </view>
+    </view>
+
+    <!-- 格子 4：产品说明 (白色卡片) -->
+    <view class="bento-cell cell-white" bindtap="openIntroPage">
+      <view class="cell-top-row">
+        <text class="cell-code">INFO_04</text>
+        <view class="icon-mini icon-doc">📄</view>
+      </view>
+      <view class="cell-bottom-box">
+        <view class="cell-main-title">产品说明</view>
+        <view class="cell-sub-en">INTRODUCTION</view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 3. 横向双分卡片 (商城 + 离线断网模式) -->
+  <view class="horizontal-strip-row">
+    <!-- 官方商城 -->
+    <view class="sub-cell-half" bindtap="navToMall">
+      <view class="sub-cell-left">
+        <text class="sub-icon">🛒</text>
+        <text class="sub-title">官方商城</text>
+      </view>
+      <text class="chevron-sm">›</text>
+    </view>
+
+    <!-- 离线断网模式开关 -->
+    <view class="sub-cell-half">
+      <view class="sub-cell-left">
+        <text class="sub-icon">🛡️</text>
+        <view class="offline-label-col">
+          <text class="sub-title">离线断网</text>
+          <text class="sub-hint-tag">100%本地</text>
+        </view>
+      </view>
+      <switch class="mini-switch" checked="{{offlineModeEnabled}}" bindchange="toggleOfflineMode" color="#0284c7" />
     </view>
   </view>
 
-  <!-- Child Profile Tabs -->
-  <view class="child-tabs">
-    <view class="child-tab {{ activeChildId === 'child_1' ? 'active' : '' }}" bindtap="switchChild" data-id="child_1">
-      👦 宝贝 1 号 (大宝)
+  <!-- 4. 单机 / 双机模式切换长条按钮 -->
+  <view class="mode-toggle-pill-card" bindtap="toggleSystemMode">
+    <view class="mode-left-meta">
+      <view class="mode-dot"></view>
+      <view class="mode-text-wrap">
+        <text class="mode-headline">
+          {{ systemMode === 'single' ? '单机两用模式 (一部手机搞定 · 免下载)' : '双机常态联动 (旧手机放书桌 · 随时看报告)' }}
+        </text>
+      </view>
     </view>
-    <view class="child-tab {{ activeChildId === 'child_2' ? 'active' : '' }}" bindtap="switchChild" data-id="child_2">
-      👧 宝贝 2 号 (二宝)
-    </view>
-  </view>
-
-  <!-- Today Summary -->
-  <view class="card summary-card">
-    <view class="section-title">今日坐姿成长概览</view>
-    <view class="grid-3">
-      <view class="grid-item">
-        <view class="grid-value text-emerald">{{ todayFocusMinutes }} <text class="unit">分钟</text></view>
-        <view class="grid-label">专注时长</view>
-      </view>
-      <view class="grid-item">
-        <view class="grid-value text-blue">{{ todayUprightRate }}<text class="unit">%</text></view>
-        <view class="grid-label">端正率</view>
-      </view>
-      <view class="grid-item">
-        <view class="grid-value text-amber">{{ todayReminders }} <text class="unit">次</text></view>
-        <view class="grid-label">主动提醒</view>
-      </view>
+    <view class="mode-right-action">
+      <text class="action-txt">切换</text>
+      <text class="chevron-blue">›</text>
     </view>
   </view>
 
-  <!-- Session List -->
-  <view class="section-header">
-    <text class="section-title">写作业记录</text>
-    <text class="sub-label">实时同步</text>
+  <!-- 5. 底部版本号与法律声明 (与原系统完全一致) -->
+  <view class="bento-footer">
+    <view class="footer-version">V2.2.0 · POSTURE LAB SYSTEM · PROFESSIONAL EDITION</view>
+    <view class="footer-declaration">非医疗机构 · 专注儿童作业良好体态与健康用眼自律培养</view>
   </view>
 
-  <block wx:if="{{ sessions.length > 0 }}">
-    <view class="session-item card" wx:for="{{ sessions }}" wx:key="sessionId" bindtap="goToReport" data-id="{{ item.sessionId }}">
-      <view class="session-top">
-        <text class="session-time">{{ item.timeFormatted }}</text>
-        <view wx:if="{{ item.isZeroReminderMaster }}" class="gold-badge">🏆 零提醒黄金通关</view>
+  <!-- 断网开启温馨提示浮层 -->
+  <view wx:if="{{showOfflinePromptModal}}" class="offline-modal-mask" bindtap="closeOfflineModal">
+    <view class="offline-modal-card" catchtap="noop">
+      <view class="modal-title">专注建议：是否断开网络？</view>
+      <view class="modal-body">
+        伴学 AI 算法 100% 运行在手机本地，开启飞行模式或断开 Wi-Fi 可以彻底阻断微信消息与来电骚扰，让孩子全心专注作业。
       </view>
-      <view class="session-stats">
-        <text>时长: {{ item.durationMinutes }}分钟</text>
-        <text>端正率: {{ item.uprightPercentage }}%</text>
-        <text>提醒: {{ item.reminderCount }}次</text>
+      <view class="modal-actions-col">
+        <button class="btn-primary-blue" bindtap="confirmStartOffline">
+          已断网 / 开启飞行，开始伴学
+        </button>
+        <button class="btn-sub-gray" bindtap="confirmStartOnline">
+          保持联网，直接开始
+        </button>
       </view>
     </view>
-  </block>
-  <block wx:else>
-    <view class="card empty-card">
-      <text class="empty-icon">📖</text>
-      <text class="empty-text">今天还没有学习记录，将旧手机架在支架上即可开始伴学</text>
-    </view>
-  </block>
+  </view>
 
-  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
 </view>

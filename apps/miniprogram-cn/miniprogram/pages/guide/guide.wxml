@@ -1,0 +1,116 @@
+<!-- miniprogram/pages/guide/guide.wxml -->
+<view class="guide-container">
+
+  <!-- 页面大标题 -->
+  <view class="guide-header">
+    <text class="guide-kicker">SETUP GUIDE</text>
+    <view class="guide-title">使用与安装指南</view>
+  </view>
+
+  <!-- ==================== 1. 官方实拍安装教学视频位 (核心预留位) ==================== -->
+  <view class="video-section-card">
+    <view class="video-header-row">
+      <view class="blue-pill-bar"></view>
+      <text class="video-section-title">官方视频教程（3分钟上手）</text>
+    </view>
+
+    <view class="video-player-box">
+      <!-- 视频播放卡片 -->
+      <view class="video-cover" wx:if="{{!isVideoPlaying}}" bindtap="playVideo">
+        <view class="video-play-btn">
+          <view class="play-arrow"></view>
+        </view>
+        <view class="video-duration-tag">01:45 高清教学</view>
+        <view class="video-title-overlay">40×60cm 桌垫铺设与 30° 笔筒支架标准布置</view>
+      </view>
+      <video wx:else id="installVideo" class="native-video" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" controls autoplay></video>
+    </view>
+  </view>
+
+  <!-- ==================== 2. 第一章节：单机两用模式 (免下载) ==================== -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">一、 只有一部手机（单机模式 · 免下载）</text>
+    </view>
+    <view class="section-paragraph">
+      单机两用模式完全<text class="text-highlight">无需下载任何额外软件</text>！您当前微信里正在打开的这个小程序就已经集成了全部伴学魔镜与家长报告功能。
+    </view>
+
+    <!-- 几何摆放图解框 -->
+    <view class="mat-schematic-box">
+      <view class="schematic-corner">
+        <text class="corner-title">左上角笔筒定位区</text>
+        <text class="corner-desc">30° 黄金视场角 · 距胸口 40~50 cm</text>
+      </view>
+      <view class="schematic-center">
+        <view class="dashed-vertical-line"></view>
+        <text class="arrow-indicator">▼ 箭头正对孩子胸骨中线</text>
+        <text class="chest-distance">胸离桌缘一拳 · 眼离书本一尺</text>
+      </view>
+    </view>
+
+    <view class="step-bullet-item">
+      <text class="step-badge-circle">1</text>
+      <view class="step-text-col">
+        <view class="step-head">摊平桌垫与放置笔筒</view>
+        <view class="step-sub">将 40×60 cm 硅胶桌垫铺在书桌中央，中线对准胸口；笔筒支架平稳放在左上角标定框内。</view>
+      </view>
+    </view>
+
+    <view class="step-bullet-item">
+      <text class="step-badge-circle">2</text>
+      <view class="step-text-col">
+        <view class="step-head">写作业时手机立于笔筒</view>
+        <view class="step-sub">孩子写作业前，直接将您手头这部手机插入笔筒卡槽，接上充电线，点击主页「开启书桌伴学」。</view>
+      </view>
+    </view>
+
+    <view class="step-bullet-item">
+      <text class="step-badge-circle">3</text>
+      <view class="step-text-col">
+        <view class="step-head">作业结束拿回手机看报告</view>
+        <view class="step-sub">写完作业拿起手机点击「结束伴学」，当前手机原地直接展示本次作业时长与端正率简报。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 3. 第二章节：双机联动模式 ==================== -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">二、 有闲置旧手机（双机联动模式）</text>
+    </view>
+    <view class="section-paragraph">
+      如果家里有闲置不用的旧 iPhone 或安卓手机，可以将其作为书桌专用常驻魔镜：
+    </view>
+    <view class="step-bullet-item">
+      <text class="step-badge-circle">1</text>
+      <view class="step-text-col">
+        <view class="step-head">旧手机微信扫码打开本小程序</view>
+        <view class="step-sub">在旧手机微信上扫码打开本程序，点击「切换为书桌工作手机」。</view>
+      </view>
+    </view>
+    <view class="step-bullet-item">
+      <text class="step-badge-circle">2</text>
+      <view class="step-text-col">
+        <view class="step-head">日常手机扫码绑定</view>
+        <view class="step-sub">旧手机屏幕显示配对码，日常手机扫一扫即可绑定成功。旧机常驻书桌纯黑屏守护，日常手机随时看云端报告。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 4. 第三章节：离线断网建议 ==================== -->
+  <view class="content-white-card">
+    <view class="section-title-row">
+      <view class="blue-pill-bar"></view>
+      <text class="section-title-text">三、 离线断网专注小技巧</text>
+    </view>
+    <view class="section-paragraph">
+      AI 坐姿检测完全在手机本地芯片运行。写作业期间强烈建议开启手机「飞行模式」或断开 Wi-Fi，既能彻底杜绝微信电话游戏弹窗骚扰，又能确保 100% 隐私安全！作业完成后重新连网即可自动同步数据。
+    </view>
+  </view>
+
+  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+
+</view>

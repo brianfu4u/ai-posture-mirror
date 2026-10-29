@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "作业坐姿成长简报"
+  "usingComponents": {},
+  "navigationBarTitleText": "坐姿伴学简报 · 家长端",
+  "navigationBarBackgroundColor": "#090d16",
+  "navigationBarTextStyle": "white"
 }

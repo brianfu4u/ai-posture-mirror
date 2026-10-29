@@ -1,79 +1,72 @@
 <!-- miniprogram/pages/cover/cover.wxml -->
 <view class="portal-container">
   
-  <!-- 1. Minimalist Non-Medical Header -->
+  <!-- 1. Apple-Style Header -->
   <view class="portal-header">
-    <view class="brand-tag">儿童自律好习惯 · 科学护眼好体态</view>
+    <text class="brand-tag">HABIT & VISION SYSTEM</text>
     <view class="brand-name">儿童习惯与视觉伴学中心</view>
-    <view class="brand-slogan">专注于培养孩子端正坐姿习惯与健康用眼自律</view>
+    <view class="brand-slogan">专注于培养孩子良好端正坐姿习惯与健康用眼自律</view>
   </view>
 
-  <!-- 2. Unified Registration & Child Profile (统一注册与受试孩子选择) -->
+  <!-- 2. Unified Registration & Child Profile (Apple Grouped Style) -->
   <view class="profile-strip">
     <view class="user-cell">
-      <view class="user-avatar">👤</view>
+      <view class="user-avatar">
+        <text class="avatar-letter">P</text>
+      </view>
       <view class="user-meta">
         <text class="user-title">{{isLoggedIn ? '家庭家长中心' : '微信一键授权注册'}}</text>
         <text class="user-sub">{{isLoggedIn ? '统一账号已绑定 · 档案全域互通' : '登录后建立孩子习惯与视力成长档案'}}</text>
       </view>
-      <button wx:if="{{!isLoggedIn}}" class="btn-quick-login" bindtap="handleLogin">登录/注册</button>
+      <button wx:if="{{!isLoggedIn}}" class="btn-quick-login" bindtap="handleLogin">登录</button>
       <view wx:else class="badge-synced">已同步</view>
     </view>
 
-    <!-- Unified Child Switcher (共享大宝/二宝档案) -->
+    <!-- Unified Child Switcher (Apple Segmented Style) -->
     <view class="child-picker" wx:if="{{isLoggedIn}}">
-      <text class="picker-label">当前孩子：</text>
+      <text class="picker-label">当前受试：</text>
       <view class="picker-tabs">
         <view class="tab-item {{activeChild === 'child_1' ? 'selected' : ''}}" bindtap="switchChild" data-child="child_1">
-          <text>👦 大宝 (10岁)</text>
+          <text>大宝 (10岁)</text>
         </view>
         <view class="tab-item {{activeChild === 'child_2' ? 'selected' : ''}}" bindtap="switchChild" data-child="child_2">
-          <text>👧 二宝 (7岁)</text>
+          <text>二宝 (7岁)</text>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 3. Two Independent Flagship Paths (干净利落的两条线，绝无杂乱九宫格) -->
+  <!-- 3. Two Independent Flagship Paths (Apple HIG Cards) -->
   <view class="tracks-wrapper">
-    <view class="tracks-heading">请选择功能路线</view>
+    <view class="tracks-heading">功能路线选择</view>
 
-    <!-- 路线一：眼脑协调与注意力测试 (完全独立的原有路线) -->
+    <!-- 路线一：眼脑协调与注意力测试 -->
     <view class="track-box track-eyebrain" bindtap="navToEyeBrain">
-      <view class="track-badge-pill pill-blue">专注力与协调互动</view>
-      <view class="track-main-row">
-        <view class="track-emojis">🧠 ⚡</view>
-        <view class="track-info">
-          <view class="track-headline">眼脑协调专注力测试</view>
-          <view class="track-summary">视听觉引导小互动 · 视知觉与反应力 · 阶段性趣味测评</view>
-        </view>
-      </view>
+      <view class="track-kicker text-blue">EYE-BRAIN COORDINATION</view>
+      <view class="track-headline">眼脑协调专注力测试</view>
+      <view class="track-summary">视听觉引导小互动 · 视知觉与反应力 · 阶段性趣味测评</view>
       <view class="track-footer">
-        <text class="footer-tip">阶段性测试 · 了解孩子视知觉协调状态</text>
+        <text class="footer-tip">阶段性测试 · 评估视知觉协调状态</text>
         <text class="footer-arrow">进入测验 ➔</text>
       </view>
     </view>
 
-    <!-- 路线二：AI 坐姿习惯伴学魔镜 (完全独立的新路线) -->
+    <!-- 路线二：AI 坐姿习惯伴学魔镜 -->
     <view class="track-box track-posture" bindtap="navToPostureMirror">
-      <view class="track-badge-pill pill-green">日常写作业自律伴学</view>
-      <view class="track-main-row">
-        <view class="track-emojis">🪞 💡</view>
-        <view class="track-info">
-          <view class="track-headline">AI 护眼坐姿伴学魔镜</view>
-          <view class="track-summary">旧手机秒变伴学屏 · 纯黑屏防分心 · 500 Lux 台灯监控 · 每日背脊日报</view>
-        </view>
-      </view>
+      <view class="track-kicker text-green">POSTURE COMPANION</view>
+      <view class="track-headline">AI 护眼坐姿伴学魔镜</view>
+      <view class="track-summary">单机两用/旧机常驻 · OLED 纯黑屏防分心 · 500 Lux 台灯监控 · 每日背脊简报</view>
       <view class="track-footer">
-        <text class="footer-tip">每天写作业使用 · 自动记录专注时长与坐姿</text>
+        <text class="footer-tip">日常写作业使用 · 自动记录专注时长与坐姿</text>
         <text class="footer-arrow arrow-green">开启伴学 ➔</text>
       </view>
     </view>
   </view>
 
-  <!-- 4. Clean Single Footnote (无杂乱九宫格，仅纯粹的非医疗习惯培养申明) -->
+  <!-- 4. Apple Minimalist Footnote -->
   <view class="legal-footnote">
-    <text>非医疗机构 · 专注儿童日常作业坐姿习惯养成与用眼卫生习惯培育</text>
+    <text>非医疗机构 · 专注儿童日常作业良好体态习惯养成与用眼健康自律培育</text>
+    <view class="brand-footer-sub">Designed in Tokyo · Made in Shanghai</view>
   </view>
 
 </view>

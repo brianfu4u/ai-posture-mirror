@@ -2,13 +2,21 @@
   "pages": [
     "pages/cover/cover",
     "pages/index/index",
-    "pages/report/report"
+    "pages/intro/intro",
+    "pages/guide/guide",
+    "pages/live/live",
+    "pages/report/report",
+    "pages/home/home",
+    "pages/player/player",
+    "pages/scoring/scoring",
+    "pages/profile/profile",
+    "pages/mall/mall"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#0b0f19",
-    "navigationBarTitleText": "儿童坐姿与视力习惯伴学",
-    "navigationBarTextStyle": "white"
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "儿童眼脑与坐姿伴学中心",
+    "navigationBarTextStyle": "black"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

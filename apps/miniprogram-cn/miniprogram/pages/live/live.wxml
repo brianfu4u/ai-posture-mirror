@@ -1,0 +1,406 @@
+<!-- miniprogram/pages/live/live.wxml -->
+<view class="apple-live-page">
+
+  <!-- ==================== 0. 姿态标定与对焦视窗 (真机前摄取景 + 绿色安全区 + 滴滴声) ==================== -->
+  <view wx:if="{{stage === 'calibrate'}}" class="apple-card-panel calibrate-panel">
+    <view class="panel-eyebrow">ALIGNMENT & FOCUS</view>
+    <view class="panel-headline">姿态标定与对焦</view>
+    <view class="panel-subcopy">前置摄像头已开启：请将脸部与双肩放入绿色安全框内锁定基准：</view>
+
+    <!-- 真实手机前置摄像头取景框 + 绿色安全区悬浮对准框 -->
+    <view class="apple-viewfinder viewfinder-green-zone">
+      <view class="viewfinder-placeholder">
+        <!-- 真实前置摄像头视频流 -->
+        <camera wx:if="{{hasCamera}}" device-position="front" flash="off" binderror="onCameraError" class="real-camera-feed"></camera>
+        <view wx:else class="virtual-feed-backup">
+          <view class="avatar-silhouette">👤</view>
+          <view class="feed-status-text">摄像头就绪</view>
+        </view>
+
+        <!-- 悬浮在摄像头画面之上的绿色安全对齐框 -->
+        <view class="camera-reticle-overlay">
+          <view class="reticle-circle circle-green"></view>
+          <view class="reticle-line line-green"></view>
+          <view class="green-safety-pill">
+            <text class="dot-green-live"></text>
+            <text>🟢 已进入最佳绿色安全区 · 测距 42cm</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="calib-footer">
+      <view class="countdown-label text-green" wx:if="{{calibrating}}">
+        ✓ 对焦成功！正在锁定挺拔基准线... {{countdownSec}}s
+      </view>
+      <button wx:else class="apple-primary-btn btn-focus-trigger" bindtap="startCalibration">
+        ⚡ 看到绿框对准后 · 点击立即锁定开启伴学
+      </button>
+      <view class="focus-hint-tip">点击后将发出「滴！滴！」对焦锁定声，随后切入纯黑屏守护</view>
+    </view>
+  </view>
+
+  <!-- ==================== 1. Apple Segmented / Stepper ==================== -->
+  <view wx:if="{{stage === 'steps' && systemMode === 'single'}}" class="apple-stepper-wrap">
+    <view class="stepper-step {{currentStep >= 1 ? 'step-active' : ''}}">
+      <view class="step-badge">1</view>
+      <text class="step-text">摆桌垫</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 2 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 2 ? 'step-active' : ''}}">
+      <view class="step-badge">2</view>
+      <text class="step-text">防打扰</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 3 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 3 ? 'step-active' : ''}}">
+      <view class="step-badge">3</view>
+      <text class="step-text">姿态标定</text>
+    </view>
+  </view>
+
+  <view wx:if="{{stage === 'steps' && systemMode === 'dual'}}" class="apple-stepper-wrap">
+    <view class="stepper-step {{currentStep >= 1 ? 'step-active' : ''}}">
+      <view class="step-badge">1</view>
+      <text class="step-text">备旧机</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 2 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 2 ? 'step-active' : ''}}">
+      <view class="step-badge">2</view>
+      <text class="step-text">开软件</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 3 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 3 ? 'step-active' : ''}}">
+      <view class="step-badge">3</view>
+      <text class="step-text">摆书桌</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 4 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 4 ? 'step-active' : ''}}">
+      <view class="step-badge">4</view>
+      <text class="step-text">双机绑</text>
+    </view>
+    <view class="stepper-dash {{currentStep >= 5 ? 'dash-active' : ''}}"></view>
+    <view class="stepper-step {{currentStep >= 5 ? 'step-active' : ''}}">
+      <view class="step-badge">5</view>
+      <text class="step-text">姿态标定</text>
+    </view>
+  </view>
+
+  <!-- ==================== 2. 单机模式专用配置向导 ==================== -->
+  <block wx:if="{{stage === 'steps' && systemMode === 'single'}}">
+
+    <!-- 单机步骤 1：书桌布置 -->
+    <view wx:if="{{currentStep === 1}}" class="apple-card-panel">
+      <view class="panel-eyebrow">SINGLE DEVICE · STEP 01</view>
+      <view class="panel-headline">摆平护眼桌垫，笔筒放右上角</view>
+      <view class="panel-subcopy">当前手机兼具魔镜与报告功能，写作业时立于笔筒支架即可：</view>
+
+      <view class="mat-schematic">
+        <view class="schematic-child">座位中轴对准线</view>
+        <view class="schematic-divider"></view>
+        <view class="schematic-stand">
+          <text class="stand-headline">笔筒支架定位区</text>
+          <text class="stand-detail">预设 30° 黄金视场角 · 距孩子 40~50 cm</text>
+        </view>
+      </view>
+
+      <view class="apple-numbered-list">
+        <view class="list-row">
+          <view class="num-bullet">01</view>
+          <view class="row-desc">将 40×60 cm 硅胶桌垫平铺在书桌中央；</view>
+        </view>
+        <view class="list-row">
+          <view class="num-bullet">02</view>
+          <view class="row-desc">将笔筒支架平稳置于右上角标定的定位框内；</view>
+        </view>
+        <view class="list-row">
+          <view class="num-bullet">03</view>
+          <view class="row-desc">作业时将当前手机插入笔筒卡槽，接通电源线。</view>
+        </view>
+      </view>
+
+      <button class="apple-primary-btn" bindtap="nextStep">下一步 ➔</button>
+    </view>
+
+    <!-- 单机步骤 2：防打扰建议 -->
+    <view wx:if="{{currentStep === 2}}" class="apple-card-panel">
+      <view class="panel-eyebrow">SINGLE DEVICE · STEP 02</view>
+      <view class="panel-headline">开启勿扰模式，保障专注作业</view>
+      <view class="panel-subcopy">单部手机使用时的关键技巧：</view>
+
+      <view class="apple-tips-stack">
+        <view class="apple-tip-row">
+          <view class="tip-title">屏幕已自动保持常亮</view>
+          <view class="tip-text">伴学过程中系统自动阻止手机熄屏休眠，无需手动调整锁屏时间。</view>
+        </view>
+        <view class="apple-tip-row">
+          <view class="tip-title">建议开启系统勿扰模式</view>
+          <view class="tip-text">建议从手机控制中心下滑开启「勿扰模式」，彻底阻断社交消息与来电弹窗干扰。</view>
+        </view>
+        <view class="apple-tip-row">
+          <view class="tip-title">作业完成原地查阅报告</view>
+          <view class="tip-text">完成作业后拿起手机点击「结束伴学」，无需切换设备，原地直接查阅本次数据简报。</view>
+        </view>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+        <button class="apple-primary-btn flex-1" bindtap="nextStep">进行姿态标定 ➔</button>
+      </view>
+    </view>
+
+    <!-- 单机步骤 3：姿态标定 -->
+    <view wx:if="{{currentStep === 3}}" class="apple-card-panel">
+      <view class="panel-eyebrow">SINGLE DEVICE · STEP 03</view>
+      <view class="panel-headline">孩子端正就座，眼睛对准标定框</view>
+      <view class="panel-subcopy">请孩子自然挺拔端坐在桌垫前，目视前方书本锁定基准：</view>
+
+      <view class="apple-viewfinder viewfinder-green-zone">
+        <view class="viewfinder-placeholder">
+          <camera wx:if="{{hasCamera}}" device-position="front" flash="off" binderror="onCameraError" class="real-camera-feed"></camera>
+          <view class="camera-reticle-overlay">
+            <view class="reticle-circle circle-green"></view>
+            <view class="reticle-line line-green"></view>
+            <view class="green-safety-pill">
+              <text class="dot-green-live"></text>
+              <text>🟢 已进入最佳绿色安全区 · 测距 42cm</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="calib-footer">
+        <view class="countdown-label text-green" wx:if="{{calibrating}}">
+          ✓ 对焦成功！正在锁定挺拔基准线... {{countdownSec}}s
+        </view>
+        <button wx:else class="apple-primary-btn" bindtap="startCalibration">
+          ⚡ 点击对焦锁定 · 开启伴学
+        </button>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+      </view>
+    </view>
+
+  </block>
+
+  <!-- ==================== 3. 双机模式专用配置向导 ==================== -->
+  <block wx:if="{{stage === 'steps' && systemMode === 'dual'}}">
+
+    <view wx:if="{{currentStep === 1}}" class="apple-card-panel">
+      <view class="panel-eyebrow">DUAL DEVICE · STEP 01</view>
+      <view class="panel-headline">准备一台闲置旧手机</view>
+      <view class="panel-subcopy">闲置 iPhone 或旧安卓手机均可作为书桌专用魔镜：</view>
+
+      <view class="apple-numbered-list">
+        <view class="list-row">
+          <view class="num-bullet">01</view>
+          <view class="row-desc">为闲置旧手机插上充电线，保证充足电量；</view>
+        </view>
+        <view class="list-row">
+          <view class="num-bullet">02</view>
+          <view class="row-desc">将旧手机接入家中 Wi-Fi 网络。</view>
+        </view>
+      </view>
+
+      <button class="apple-primary-btn" bindtap="nextStep">已备好旧手机，下一步 ➔</button>
+    </view>
+
+    <view wx:if="{{currentStep === 2}}" class="apple-card-panel">
+      <view class="panel-eyebrow">DUAL DEVICE · STEP 02</view>
+      <view class="panel-headline">旧手机扫码打开本小程序</view>
+      <view class="panel-subcopy">微信扫码即开即用，无需通过应用商店下载：</view>
+
+      <view class="qr-container">
+        <view class="qr-clean-card">
+          <view class="qr-glyph">QR CODE</view>
+          <view class="qr-caption">使用旧手机微信扫码进入</view>
+          <view class="qr-sub">打开后点击「切换为书桌工作手机」</view>
+        </view>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+        <button class="apple-primary-btn flex-1" bindtap="nextStep">旧机已打开，下一步 ➔</button>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 3}}" class="apple-card-panel">
+      <view class="panel-eyebrow">DUAL DEVICE · STEP 03</view>
+      <view class="panel-headline">桌垫平平摊好，旧机放入笔筒</view>
+      <view class="panel-subcopy">按标准物理几何摆放书桌配件：</view>
+
+      <view class="apple-numbered-list">
+        <view class="list-row">
+          <view class="num-bullet">01</view>
+          <view class="row-desc">桌垫平铺在书桌中央，中轴线对齐孩子胸口；</view>
+        </view>
+        <view class="list-row">
+          <view class="num-bullet">02</view>
+          <view class="row-desc">笔筒支架置于右上角定位框，预设 30° 黄金视场角；</view>
+        </view>
+        <view class="list-row">
+          <view class="num-bullet">03</view>
+          <view class="row-desc">将旧手机插进笔筒卡槽并保持接通电源。</view>
+        </view>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+        <button class="apple-primary-btn flex-1" bindtap="nextStep">摆放就位，下一步 ➔</button>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 4}}" class="apple-card-panel">
+      <view class="panel-eyebrow">DUAL DEVICE · STEP 04</view>
+      <view class="panel-headline">日常手机扫码绑定旧机</view>
+      <view class="panel-subcopy">旧手机屏幕已显示 6 位配对验证码：</view>
+
+      <view class="pairing-badge-card">
+        <view class="code-label">DEVICE PIN</view>
+        <view class="code-value">892 016</view>
+      </view>
+
+      <view class="pairing-action-stack">
+        <button class="apple-primary-btn" bindtap="scanWorkPhone">调起相机扫码绑定</button>
+        <button class="apple-secondary-btn" bindtap="simulatePairSuccess">模拟配对联动</button>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 5}}" class="apple-card-panel">
+      <view class="panel-eyebrow">DUAL DEVICE · STEP 05</view>
+      <view class="panel-headline">孩子端正就座，眼睛对准标定框</view>
+      <view class="panel-subcopy">双机已绑定成功，请孩子端正就座锁定基准：</view>
+
+      <view class="apple-viewfinder viewfinder-green-zone">
+        <view class="viewfinder-placeholder">
+          <camera wx:if="{{hasCamera}}" device-position="front" flash="off" binderror="onCameraError" class="real-camera-feed"></camera>
+          <view class="camera-reticle-overlay">
+            <view class="reticle-circle circle-green"></view>
+            <view class="reticle-line line-green"></view>
+            <view class="green-safety-pill">
+              <text class="dot-green-live"></text>
+              <text>🟢 已进入最佳绿色安全区 · 测距 42cm</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="calib-footer">
+        <view class="countdown-label text-green" wx:if="{{calibrating}}">
+          ✓ 对焦成功！正在锁定挺拔基准线... {{countdownSec}}s
+        </view>
+        <button wx:else class="apple-primary-btn" bindtap="startCalibration">
+          ⚡ 点击对焦锁定 · 开启伴学
+        </button>
+      </view>
+
+      <view class="button-split-row">
+        <button class="apple-secondary-btn" bindtap="prevStep">上一步</button>
+      </view>
+    </view>
+
+  </block>
+
+  <!-- ==================== 4. OLED 纯黑屏伴学状态 ==================== -->
+  <view wx:if="{{stage === 'active'}}" class="apple-oled-screen {{postureState !== 'upright' ? 'screen-warning-border' : ''}}">
+
+    <view class="oled-status-bar">
+      <view class="oled-badge">
+        <text class="badge-dot {{isOffline ? 'dot-cyan' : 'dot-green'}}"></text>
+        <text>{{isOffline ? '离线纯净守护中 · 零网络干扰' : '纯黑屏伴学中 · 屏幕常亮防分心'}}</text>
+      </view>
+      <view class="btn-exit" bindtap="finishSession">结束伴学</view>
+    </view>
+
+    <!-- 中央极简番茄钟 (SF Pro Ultra Light) -->
+    <view class="oled-clock-center">
+      <view class="clock-digits">{{timerText}}</view>
+      <view class="clock-label">
+        <text class="status-indicator-dot {{postureState === 'upright' ? 'bg-green' : 'bg-amber'}}"></text>
+        <text>{{statusDescription}}</text>
+      </view>
+      <view class="clock-target">守护对象：{{childName}} · 端正率 {{currentUprightRate}}%</view>
+    </view>
+
+    <!-- 瞬时轻量警示提示 (纯净无表情包) -->
+    <view class="apple-instant-banner {{showAlert ? 'banner-visible' : 'banner-hidden'}}">
+      <view class="banner-content">
+        <view class="banner-title">{{alertTitle}}</view>
+        <view class="banner-sub">{{alertSubtitle}}</view>
+      </view>
+    </view>
+
+    <!-- 现场交互调试板 (支持自动巡回演示 + 手动点击) -->
+    <view class="apple-test-controller">
+      <view class="demo-auto-strip">
+        <text class="auto-label">自动声光演示循环：</text>
+        <switch checked="{{autoDemoLoop}}" bindchange="toggleAutoDemo" color="#34c759" />
+      </view>
+      <view class="controller-title">👇 点击下方按键，立即测试笑声与报警声音：</view>
+      <view class="controller-btn-group">
+        <view class="ctrl-btn {{postureState === 'tilted' ? 'ctrl-warn' : ''}}" bindtap="triggerPosture" data-type="tilted">
+          歪头 (笑声提醒)
+        </view>
+        <view class="ctrl-btn {{postureState === 'head_down' ? 'ctrl-warn' : ''}}" bindtap="triggerPosture" data-type="head_down">
+          低头 (弹簧报警)
+        </view>
+        <view class="ctrl-btn {{postureState === 'too_close' ? 'ctrl-warn' : ''}}" bindtap="triggerPosture" data-type="too_close">
+          太近 (短音预警)
+        </view>
+        <view class="ctrl-btn {{postureState === 'away' ? 'ctrl-dim' : ''}}" bindtap="triggerPosture" data-type="away">
+          离座 (挂起音)
+        </view>
+        <view class="ctrl-btn {{postureState === 'upright' ? 'ctrl-active' : ''}}" bindtap="triggerPosture" data-type="upright">
+          恢复端正
+        </view>
+      </view>
+      <view class="controller-metrics">
+        <text>累计提醒: {{reminderCount}} 次</text>
+        <text class="sep">/</text>
+        <text>端正率: {{currentUprightRate}}%</text>
+        <text class="sep">/</text>
+        <text>{{isZeroReminder ? '保持零提醒' : '已产生提醒'}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- ==================== 5. 结算弹窗 ==================== -->
+  <view wx:if="{{stage === 'summary'}}" class="apple-summary-mask">
+    <view class="apple-summary-card">
+      <view class="summary-kicker">{{isZeroReminder ? 'PERFECT SESSION' : 'SESSION COMPLETED'}}</view>
+      <view class="summary-headline">{{isZeroReminder ? '零提醒通关！' : '本次作业伴学完成'}}</view>
+      <view class="summary-subline">
+        {{systemMode === 'single' ? '单机模式：作业已结束，点击直接查阅本次报告' : '双机模式：数据已实时同步至家长端'}}
+      </view>
+
+      <view class="summary-metric-grid">
+        <view class="metric-cell">
+          <view class="metric-value text-green">{{sessionMinutes}} <text class="metric-unit">分</text></view>
+          <view class="metric-label">专注时长</view>
+        </view>
+        <view class="metric-cell">
+          <view class="metric-value text-blue">{{currentUprightRate}}<text class="metric-unit">%</text></view>
+          <view class="metric-label">端正率</view>
+        </view>
+        <view class="metric-cell">
+          <view class="metric-value text-amber">{{reminderCount}} <text class="metric-unit">次</text></view>
+          <view class="metric-label">姿态提醒</view>
+        </view>
+      </view>
+
+      <button class="apple-primary-btn" bindtap="saveAndGoToReport">
+        查看本次坐姿简报 ➔
+      </button>
+      <view class="summary-link-btn" bindtap="goBack">
+        返回伴学主页
+      </view>
+    </view>
+  </view>
+
+</view>

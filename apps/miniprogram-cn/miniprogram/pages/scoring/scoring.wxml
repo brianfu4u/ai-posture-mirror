@@ -1,4 +1,119 @@
-<view style="padding: 40rpx; text-align: center; color: #94a3b8;">
-  <view style="font-size: 36rpx; font-weight: bold; color: #38bdf8; margin-bottom: 20rpx;">答题与录入打分模块</view>
-  <view style="font-size: 24rpx; line-height: 1.6;">模块已成功接入全域统一架构系统。<br/>支持大宝/二宝档案共享与全流程数据闭环。</view>
+<!-- miniprogram/pages/scoring/scoring.wxml -->
+<view class="scoring-page">
+
+  <!-- 顶部总分卡片 (完全复刻原版截图) -->
+  <view class="total-score-card">
+    <view class="score-left">
+      <view class="score-title">当前测评总分</view>
+      <view class="score-en">TOTAL SCORE</view>
+    </view>
+    <view class="score-right">
+      <text class="score-num">{{ totalScore }}</text>
+      <text class="score-unit">分</text>
+    </view>
+  </view>
+
+  <!-- Q1 直线路径 -->
+  <view class="question-card">
+    <view class="q-header-row">
+      <view class="q-num-label">
+        <text class="q-tag">Q1</text>
+        <text class="q-title">直线路径</text>
+      </view>
+      <view class="score-rule-pill" bindtap="showRuleTip" data-q="q1">
+        <text class="rule-icon">💡</text>
+        <text class="rule-txt">评分说明</text>
+      </view>
+    </view>
+
+    <view class="options-stack">
+      <view class="option-row {{ q1Score === 5 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q1" data-val="5">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q1Score === 5 }}"></view>
+        </view>
+        <text class="opt-score">5分</text>
+        <text class="opt-desc">完美居中无触线</text>
+      </view>
+
+      <view class="option-row {{ q1Score === 4 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q1" data-val="4">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q1Score === 4 }}"></view>
+        </view>
+        <text class="opt-score">4分</text>
+        <text class="opt-desc">整体在内略有抖动</text>
+      </view>
+
+      <view class="option-row {{ q1Score === 2 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q1" data-val="2">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q1Score === 2 }}"></view>
+        </view>
+        <text class="opt-score">2分</text>
+        <text class="opt-desc">部分触碰边界线</text>
+      </view>
+
+      <view class="option-row {{ q1Score === 0 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q1" data-val="0">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q1Score === 0 }}"></view>
+        </view>
+        <text class="opt-score">0分</text>
+        <text class="opt-desc">明显画出界外断线</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Q2 曲线路径 -->
+  <view class="question-card">
+    <view class="q-header-row">
+      <view class="q-num-label">
+        <text class="q-tag">Q2</text>
+        <text class="q-title">曲线路径</text>
+      </view>
+      <view class="score-rule-pill" bindtap="showRuleTip" data-q="q2">
+        <text class="rule-icon">💡</text>
+        <text class="rule-txt">评分说明</text>
+      </view>
+    </view>
+
+    <view class="options-stack">
+      <view class="option-row {{ q2Score === 5 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q2" data-val="5">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q2Score === 5 }}"></view>
+        </view>
+        <text class="opt-score">5分</text>
+        <text class="opt-desc">平滑居中无触线</text>
+      </view>
+
+      <view class="option-row {{ q2Score === 4 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q2" data-val="4">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q2Score === 4 }}"></view>
+        </view>
+        <text class="opt-score">4分</text>
+        <text class="opt-desc">曲线略有生硬抖动</text>
+      </view>
+
+      <view class="option-row {{ q2Score === 2 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q2" data-val="2">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q2Score === 2 }}"></view>
+        </view>
+        <text class="opt-score">2分</text>
+        <text class="opt-desc">偏离触碰边界线</text>
+      </view>
+
+      <view class="option-row {{ q2Score === 0 ? 'option-selected' : '' }}" bindtap="selectScore" data-q="q2" data-val="0">
+        <view class="radio-outer">
+          <view class="radio-inner" wx:if="{{ q2Score === 0 }}"></view>
+        </view>
+        <text class="opt-score">0分</text>
+        <text class="opt-desc">明显画出界外断线</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部保存成绩按钮 (复刻原版截图) -->
+  <view class="scoring-bottom-bar">
+    <button class="btn-save-report" bindtap="saveAndGenerateReport">
+      保存成绩并生成报告
+    </button>
+  </view>
+
 </view>

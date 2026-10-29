@@ -1,4 +1,74 @@
-<view style="padding: 40rpx; text-align: center; color: #94a3b8;">
-  <view style="font-size: 36rpx; font-weight: bold; color: #38bdf8; margin-bottom: 20rpx;">个人中心与受试者档案</view>
-  <view style="font-size: 24rpx; line-height: 1.6;">模块已成功接入全域统一架构系统。<br/>支持大宝/二宝档案共享与全流程数据闭环。</view>
+<!-- miniprogram/pages/profile/profile.wxml -->
+<view class="profile-page">
+
+  <!-- 用户个人卡片 -->
+  <view class="user-card-head">
+    <view class="avatar-large">
+      <text class="avatar-letter">傅</text>
+    </view>
+    <view class="user-details">
+      <view class="user-main-name">傅家家庭中心</view>
+      <view class="user-phone">138****8888</view>
+      <view class="user-vip-pill">终身伴学 VIP 已激活</view>
+    </view>
+  </view>
+
+  <!-- 受试孩子档案管理 -->
+  <view class="section-card">
+    <view class="card-head-title">受试孩子档案</view>
+    <view class="child-picker-row">
+      <view class="child-card {{ activeChildId === 'child_1' ? 'child-selected' : '' }}" bindtap="switchChild" data-id="child_1">
+        <view class="child-name">大宝 (10岁)</view>
+        <view class="child-desc">小学四年级 · 护眼标准 G1-G2</view>
+      </view>
+      <view class="child-card {{ activeChildId === 'child_2' ? 'child-selected' : '' }}" bindtap="switchChild" data-id="child_2">
+        <view class="child-name">二宝 (7岁)</view>
+        <view class="child-desc">小学一年级 · 护眼标准 初级</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 硬件与书桌绑定状态 -->
+  <view class="section-card">
+    <view class="card-head-title">书桌硬件与魔镜状态</view>
+    <view class="setting-row">
+      <view class="setting-left">
+        <text class="set-title">书桌标准桌垫 (40×60cm)</text>
+        <text class="set-sub">已完成左上角 30° 笔筒几何标定</text>
+      </view>
+      <view class="status-badge-ok">正常在用</view>
+    </view>
+    <view class="setting-row" bindtap="navToGuide">
+      <view class="setting-left">
+        <text class="set-title">重新校准书桌摆放与角度</text>
+        <text class="set-sub">查看 3 分钟标准实操安装视频</text>
+      </view>
+      <text class="chevron">›</text>
+    </view>
+  </view>
+
+  <!-- 我的商城实物订单 -->
+  <view class="section-card">
+    <view class="card-head-title">我的实物订单</view>
+    <view class="order-item-row" bindtap="navToMall">
+      <view class="order-left">
+        <text class="order-icon">📦</text>
+        <view class="order-meta">
+          <view class="order-title">儿童眼脑协同专业评测印制套装</view>
+          <view class="order-sub">顺丰速运 · 正在运输中</view>
+        </view>
+      </view>
+      <view class="order-price">¥88.00</view>
+    </view>
+  </view>
+
+  <!-- 客服支持 -->
+  <view class="section-card">
+    <button class="btn-contact-service" open-type="contact">
+      💬 联系官方专家微信客服
+    </button>
+  </view>
+
+  <view class="brand-text">Designed in Tokyo, Japan · Made in Shanghai, China</view>
+
 </view>

@@ -1,0 +1,84 @@
+name: CI & Deployment Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Unit Tests & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Algorithm & Work Order Tests
+        run: |
+          node tools/run_all_tests.mjs
+          node tools/test_sprint3_4.mjs
+
+  deploy-miniprogram:
+    name: WeChat Mini-Program CI Upload
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Upload WeChat Mini-Program via miniprogram-ci
+        if: env.WECHAT_APPID != ''
+        env:
+          WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+          WECHAT_PRIVATE_KEY: ${{ secrets.WECHAT_PRIVATE_KEY }}
+        run: |
+          npm install -g miniprogram-ci
+          echo "$WECHAT_PRIVATE_KEY" > /tmp/private.key
+          miniprogram-ci upload \
+            --pp ./apps/miniprogram-cn \
+            --pkp /tmp/private.key \
+            --appid $WECHAT_APPID \
+            --uv 1.0.0 \
+            --ud "Auto upload from GitHub Actions commit ${{ github.sha }}"
+
+  deploy-overseas:
+    name: Deploy Overseas Server to Cloud Run (Tokyo)
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Google Cloud Auth
+        if: env.GCP_SA_KEY != ''
+        uses: google-github-actions/auth@v2
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Run (Tokyo asia-northeast1)
+        if: env.GCP_SA_KEY != ''
+        run: |
+          gcloud run deploy apm-server-overseas \
+            --source ./apps/server-overseas \
+            --region asia-northeast1 \
+            --platform managed \
+            --allow-unauthenticated

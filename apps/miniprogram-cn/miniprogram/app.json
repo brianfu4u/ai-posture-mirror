@@ -1,12 +1,19 @@
 {
   "pages": [
+    "pages/cover/cover",
     "pages/index/index",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/home/home",
+    "pages/profile/profile",
+    "pages/player/player",
+    "pages/scoring/scoring",
+    "pages/mall/mall",
+    "pages/consult/consult"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#0f172a",
-    "navigationBarTitleText": "AI 护眼坐姿伴学镜",
+    "navigationBarBackgroundColor": "#0b0f19",
+    "navigationBarTitleText": "MUKE 欧迪视光 · 儿童眼脑双核系统",
     "navigationBarTextStyle": "white"
   },
   "style": "v2",

@@ -1,0 +1,89 @@
+<!-- miniprogram/pages/cover/cover.wxml -->
+<view class="cover-container">
+  
+  <!-- 1. Top Brand Header -->
+  <view class="brand-header">
+    <view class="brand-badge">Designed in Tokyo · Made in Shanghai</view>
+    <view class="brand-title">MUKE 欧迪视光</view>
+    <view class="brand-subtitle">儿童视觉认知与坐姿全维健康守护系统</view>
+  </view>
+
+  <!-- 2. Unified User & Child Profile Center (统一注册与受试者档案) -->
+  <view class="profile-card">
+    <view class="user-row">
+      <view class="user-info">
+        <view class="avatar">👤</view>
+        <view class="user-details">
+          <text class="user-name">{{isLoggedIn ? 'Brian 的家长中心' : '点击完成微信一键注册'}}</text>
+          <text class="user-phone">{{isLoggedIn ? '已绑定手机: 138****8888' : '享受孩子专属视力与坐姿双档案'}}</text>
+        </view>
+      </view>
+      <button wx:if="{{!isLoggedIn}}" class="btn-login" bindtap="handleOneClickLogin">授权登录</button>
+      <view wx:else class="vip-tag">已认证</view>
+    </view>
+
+    <!-- Unified Child Switcher (共享大宝/二宝档案) -->
+    <view class="child-switcher" wx:if="{{isLoggedIn}}">
+      <view class="switcher-label">当前受试孩子：</view>
+      <view class="child-tabs">
+        <view class="child-tab {{activeChild === 'child_1' ? 'active' : ''}}" bindtap="switchChild" data-child="child_1">
+          <text>👦 大宝 (10岁)</text>
+        </view>
+        <view class="child-tab {{activeChild === 'child_2' ? 'active' : ''}}" bindtap="switchChild" data-child="child_2">
+          <text>👧 二宝 (7岁)</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 3. Dual Flagship Business Lines (双业务路线大卡片) -->
+  <view class="tracks-section">
+    <view class="section-title">请选择守护路线</view>
+
+    <!-- Track 1: 眼脑协同本能测评体系 (适合周末/月度) -->
+    <view class="track-card card-eyebrain" bindtap="navToEyeBrain">
+      <view class="card-glow"></view>
+      <view class="track-icon">👁️ 🧠</view>
+      <view class="track-content">
+        <view class="track-badge badge-blue">阶段性视功能评估</view>
+        <view class="track-title">眼脑协同本能测评</view>
+        <view class="track-desc">视听觉引导互动 · 眼跳追踪 · 空间感知 · M1-M5 多维雷达图</view>
+        <view class="track-meta">
+          <text class="meta-tag">⚡ 上次测评：88分 (优良)</text>
+          <text class="meta-action">进入测验 ➔</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Track 2: AI 护眼坐姿伴学魔镜 (适合每天写作业) -->
+    <view class="track-card card-posture" bindtap="navToPostureMirror">
+      <view class="card-glow"></view>
+      <view class="track-icon">🪞 💡</view>
+      <view class="track-content">
+        <view class="track-badge badge-green">每日作业常态守护</view>
+        <view class="track-title">AI 护眼坐姿伴学魔镜</view>
+        <view class="track-desc">旧手机伴学 · 纯黑屏防分心 · 500 Lux 台灯监控 · 背脊挺拔日报</view>
+        <view class="track-meta">
+          <text class="meta-tag">🌟 今日专注：42分钟 (端正率98%)</text>
+          <text class="meta-action">查看日报 ➔</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 4. Quick Access Mall & Consult Bar -->
+  <view class="bottom-tools">
+    <view class="tool-item" bindtap="navToMall">
+      <text class="tool-icon">🛒</text>
+      <text class="tool-name">护眼写字垫商城</text>
+      <text class="tool-badge">¥59.9特惠</text>
+    </view>
+    <view class="tool-divider"></view>
+    <view class="tool-item" bindtap="navToConsult">
+      <text class="tool-icon">👨‍⚕️</text>
+      <text class="tool-name">视光专家门诊咨询</text>
+      <text class="tool-badge">在线预约</text>
+    </view>
+  </view>
+
+</view>

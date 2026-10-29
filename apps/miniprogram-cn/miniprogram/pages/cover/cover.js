@@ -4,13 +4,12 @@ Page({
     isLoggedIn: true,
     activeChild: 'child_1',
     childProfiles: {
-      child_1: { name: '大宝', age: 10, note: '近视防控重点' },
-      child_2: { name: '二宝', age: 7, note: '眼脑协调与读写' }
+      child_1: { name: '大宝', age: 10 },
+      child_2: { name: '二宝', age: 7 }
     }
   },
 
   onLoad() {
-    // Read cached login status & active child
     const cachedUser = wx.getStorageSync('apm_user_info');
     if (cachedUser) {
       this.setData({ isLoggedIn: true });
@@ -19,14 +18,14 @@ Page({
     this.setData({ activeChild: cachedChild });
   },
 
-  handleOneClickLogin() {
-    wx.showLoading({ title: '正在授权登录...' });
+  handleLogin() {
+    wx.showLoading({ title: '正在登录...' });
     setTimeout(() => {
       wx.hideLoading();
       this.setData({ isLoggedIn: true });
-      wx.setStorageSync('apm_user_info', { phone: '138****8888', name: 'Brian 家长' });
+      wx.setStorageSync('apm_user_info', { phone: '138****8888', name: '家长用户' });
       wx.showToast({ title: '登录成功', icon: 'success' });
-    }, 500);
+    }, 400);
   },
 
   switchChild(e) {
@@ -34,46 +33,30 @@ Page({
     this.setData({ activeChild: child });
     wx.setStorageSync('apm_active_child', child);
     wx.showToast({
-      title: `已切换为 ${this.data.childProfiles[child].name}`,
+      title: `当前孩子：${this.data.childProfiles[child].name}`,
       icon: 'none'
     });
   },
 
+  // 路线一：进入原有的眼脑协同测试（完全独立，不碰对方代码）
   navToEyeBrain() {
     wx.navigateTo({
       url: '/pages/home/home',
       fail: () => {
-        // Fallback if pages/home not yet created
+        // Fallback提示
         wx.showModal({
-          title: '眼脑协同本能测评',
-          content: '眼脑协同测试模块已接入。包含视听觉引导、眼动追踪与 M1-M5 测评雷达图！',
+          title: '眼脑协调测试',
+          content: '眼脑协调测试互动模块已就绪，保持独立运行。',
           showCancel: false
         });
       }
     });
   },
 
+  // 路线二：进入 AI 护眼坐姿伴学魔镜（完全独立）
   navToPostureMirror() {
     wx.navigateTo({
       url: '/pages/index/index'
-    });
-  },
-
-  navToMall() {
-    wx.navigateTo({
-      url: '/pages/mall/mall',
-      fail: () => {
-        wx.showToast({ title: '进入器材商城', icon: 'none' });
-      }
-    });
-  },
-
-  navToConsult() {
-    wx.navigateTo({
-      url: '/pages/consult/consult',
-      fail: () => {
-        wx.showToast({ title: '进入门诊咨询', icon: 'none' });
-      }
     });
   }
 });

@@ -1,89 +1,79 @@
 <!-- miniprogram/pages/cover/cover.wxml -->
-<view class="cover-container">
+<view class="portal-container">
   
-  <!-- 1. Top Brand Header -->
-  <view class="brand-header">
-    <view class="brand-badge">Designed in Tokyo · Made in Shanghai</view>
-    <view class="brand-title">MUKE 欧迪视光</view>
-    <view class="brand-subtitle">儿童视觉认知与坐姿全维健康守护系统</view>
+  <!-- 1. Minimalist Non-Medical Header -->
+  <view class="portal-header">
+    <view class="brand-tag">儿童自律好习惯 · 科学护眼好体态</view>
+    <view class="brand-name">儿童习惯与视觉伴学中心</view>
+    <view class="brand-slogan">专注于培养孩子端正坐姿习惯与健康用眼自律</view>
   </view>
 
-  <!-- 2. Unified User & Child Profile Center (统一注册与受试者档案) -->
-  <view class="profile-card">
-    <view class="user-row">
-      <view class="user-info">
-        <view class="avatar">👤</view>
-        <view class="user-details">
-          <text class="user-name">{{isLoggedIn ? 'Brian 的家长中心' : '点击完成微信一键注册'}}</text>
-          <text class="user-phone">{{isLoggedIn ? '已绑定手机: 138****8888' : '享受孩子专属视力与坐姿双档案'}}</text>
-        </view>
+  <!-- 2. Unified Registration & Child Profile (统一注册与受试孩子选择) -->
+  <view class="profile-strip">
+    <view class="user-cell">
+      <view class="user-avatar">👤</view>
+      <view class="user-meta">
+        <text class="user-title">{{isLoggedIn ? '家庭家长中心' : '微信一键授权注册'}}</text>
+        <text class="user-sub">{{isLoggedIn ? '统一账号已绑定 · 档案全域互通' : '登录后建立孩子习惯与视力成长档案'}}</text>
       </view>
-      <button wx:if="{{!isLoggedIn}}" class="btn-login" bindtap="handleOneClickLogin">授权登录</button>
-      <view wx:else class="vip-tag">已认证</view>
+      <button wx:if="{{!isLoggedIn}}" class="btn-quick-login" bindtap="handleLogin">登录/注册</button>
+      <view wx:else class="badge-synced">已同步</view>
     </view>
 
     <!-- Unified Child Switcher (共享大宝/二宝档案) -->
-    <view class="child-switcher" wx:if="{{isLoggedIn}}">
-      <view class="switcher-label">当前受试孩子：</view>
-      <view class="child-tabs">
-        <view class="child-tab {{activeChild === 'child_1' ? 'active' : ''}}" bindtap="switchChild" data-child="child_1">
+    <view class="child-picker" wx:if="{{isLoggedIn}}">
+      <text class="picker-label">当前孩子：</text>
+      <view class="picker-tabs">
+        <view class="tab-item {{activeChild === 'child_1' ? 'selected' : ''}}" bindtap="switchChild" data-child="child_1">
           <text>👦 大宝 (10岁)</text>
         </view>
-        <view class="child-tab {{activeChild === 'child_2' ? 'active' : ''}}" bindtap="switchChild" data-child="child_2">
+        <view class="tab-item {{activeChild === 'child_2' ? 'selected' : ''}}" bindtap="switchChild" data-child="child_2">
           <text>👧 二宝 (7岁)</text>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 3. Dual Flagship Business Lines (双业务路线大卡片) -->
-  <view class="tracks-section">
-    <view class="section-title">请选择守护路线</view>
+  <!-- 3. Two Independent Flagship Paths (干净利落的两条线，绝无杂乱九宫格) -->
+  <view class="tracks-wrapper">
+    <view class="tracks-heading">请选择功能路线</view>
 
-    <!-- Track 1: 眼脑协同本能测评体系 (适合周末/月度) -->
-    <view class="track-card card-eyebrain" bindtap="navToEyeBrain">
-      <view class="card-glow"></view>
-      <view class="track-icon">👁️ 🧠</view>
-      <view class="track-content">
-        <view class="track-badge badge-blue">阶段性视功能评估</view>
-        <view class="track-title">眼脑协同本能测评</view>
-        <view class="track-desc">视听觉引导互动 · 眼跳追踪 · 空间感知 · M1-M5 多维雷达图</view>
-        <view class="track-meta">
-          <text class="meta-tag">⚡ 上次测评：88分 (优良)</text>
-          <text class="meta-action">进入测验 ➔</text>
+    <!-- 路线一：眼脑协调与注意力测试 (完全独立的原有路线) -->
+    <view class="track-box track-eyebrain" bindtap="navToEyeBrain">
+      <view class="track-badge-pill pill-blue">专注力与协调互动</view>
+      <view class="track-main-row">
+        <view class="track-emojis">🧠 ⚡</view>
+        <view class="track-info">
+          <view class="track-headline">眼脑协调专注力测试</view>
+          <view class="track-summary">视听觉引导小互动 · 视知觉与反应力 · 阶段性趣味测评</view>
         </view>
+      </view>
+      <view class="track-footer">
+        <text class="footer-tip">阶段性测试 · 了解孩子视知觉协调状态</text>
+        <text class="footer-arrow">进入测验 ➔</text>
       </view>
     </view>
 
-    <!-- Track 2: AI 护眼坐姿伴学魔镜 (适合每天写作业) -->
-    <view class="track-card card-posture" bindtap="navToPostureMirror">
-      <view class="card-glow"></view>
-      <view class="track-icon">🪞 💡</view>
-      <view class="track-content">
-        <view class="track-badge badge-green">每日作业常态守护</view>
-        <view class="track-title">AI 护眼坐姿伴学魔镜</view>
-        <view class="track-desc">旧手机伴学 · 纯黑屏防分心 · 500 Lux 台灯监控 · 背脊挺拔日报</view>
-        <view class="track-meta">
-          <text class="meta-tag">🌟 今日专注：42分钟 (端正率98%)</text>
-          <text class="meta-action">查看日报 ➔</text>
+    <!-- 路线二：AI 坐姿习惯伴学魔镜 (完全独立的新路线) -->
+    <view class="track-box track-posture" bindtap="navToPostureMirror">
+      <view class="track-badge-pill pill-green">日常写作业自律伴学</view>
+      <view class="track-main-row">
+        <view class="track-emojis">🪞 💡</view>
+        <view class="track-info">
+          <view class="track-headline">AI 护眼坐姿伴学魔镜</view>
+          <view class="track-summary">旧手机秒变伴学屏 · 纯黑屏防分心 · 500 Lux 台灯监控 · 每日背脊日报</view>
         </view>
+      </view>
+      <view class="track-footer">
+        <text class="footer-tip">每天写作业使用 · 自动记录专注时长与坐姿</text>
+        <text class="footer-arrow arrow-green">开启伴学 ➔</text>
       </view>
     </view>
   </view>
 
-  <!-- 4. Quick Access Mall & Consult Bar -->
-  <view class="bottom-tools">
-    <view class="tool-item" bindtap="navToMall">
-      <text class="tool-icon">🛒</text>
-      <text class="tool-name">护眼写字垫商城</text>
-      <text class="tool-badge">¥59.9特惠</text>
-    </view>
-    <view class="tool-divider"></view>
-    <view class="tool-item" bindtap="navToConsult">
-      <text class="tool-icon">👨‍⚕️</text>
-      <text class="tool-name">视光专家门诊咨询</text>
-      <text class="tool-badge">在线预约</text>
-    </view>
+  <!-- 4. Clean Single Footnote (无杂乱九宫格，仅纯粹的非医疗习惯培养申明) -->
+  <view class="legal-footnote">
+    <text>非医疗机构 · 专注儿童日常作业坐姿习惯养成与用眼卫生习惯培育</text>
   </view>
 
 </view>

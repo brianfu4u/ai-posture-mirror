@@ -2,18 +2,12 @@
   "pages": [
     "pages/cover/cover",
     "pages/index/index",
-    "pages/report/report",
-    "pages/home/home",
-    "pages/profile/profile",
-    "pages/player/player",
-    "pages/scoring/scoring",
-    "pages/mall/mall",
-    "pages/consult/consult"
+    "pages/report/report"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#0b0f19",
-    "navigationBarTitleText": "MUKE 欧迪视光 · 儿童眼脑双核系统",
+    "navigationBarTitleText": "儿童坐姿与视力习惯伴学",
     "navigationBarTextStyle": "white"
   },
   "style": "v2",

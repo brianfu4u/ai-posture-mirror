@@ -1,96 +1,94 @@
 /* miniprogram/pages/cover/cover.wxss */
-.cover-container {
+.portal-container {
   min-height: 100vh;
-  background-color: #0b0f19;
+  background-color: #070b14;
   color: #f8fafc;
-  padding: 40rpx 30rpx 60rpx;
+  padding: 40rpx 32rpx 60rpx;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.brand-header {
+.portal-header {
   text-align: center;
   margin-bottom: 40rpx;
-  padding-top: 20rpx;
+  padding-top: 10rpx;
 }
-.brand-badge {
+.brand-tag {
   display: inline-block;
   background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   color: #34d399;
   font-size: 20rpx;
-  padding: 6rpx 20rpx;
+  font-weight: 600;
+  padding: 6rpx 22rpx;
   border-radius: 30rpx;
   letter-spacing: 2rpx;
   margin-bottom: 16rpx;
 }
-.brand-title {
-  font-size: 46rpx;
+.brand-name {
+  font-size: 42rpx;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 2rpx;
+  letter-spacing: 1.5rpx;
 }
-.brand-subtitle {
+.brand-slogan {
   font-size: 24rpx;
   color: #94a3b8;
   margin-top: 10rpx;
-  letter-spacing: 1rpx;
 }
 
-/* Profile Card */
-.profile-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 28rpx;
-  padding: 30rpx;
+/* Unified Profile Strip */
+.profile-strip {
+  background: #131c2e;
+  border: 1px solid #1e293b;
+  border-radius: 26rpx;
+  padding: 28rpx;
   margin-bottom: 40rpx;
-  box-shadow: 0 10rpx 25rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10rpx 25rpx rgba(0, 0, 0, 0.35);
 }
-.user-row {
+.user-cell {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.user-info {
-  display: flex;
-  align-items: center;
-}
-.avatar {
-  width: 80rpx;
-  height: 80rpx;
-  background: #334155;
+.user-avatar {
+  width: 76rpx;
+  height: 76rpx;
+  background: #1e293b;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40rpx;
+  font-size: 38rpx;
   margin-right: 20rpx;
+  border: 1px solid #334155;
 }
-.user-details {
+.user-meta {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
-.user-name {
+.user-title {
   font-size: 28rpx;
   font-weight: 700;
   color: #f1f5f9;
 }
-.user-phone {
+.user-sub {
   font-size: 20rpx;
   color: #94a3b8;
   margin-top: 6rpx;
 }
-.btn-login {
+.btn-quick-login {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   font-size: 24rpx;
   font-weight: 700;
-  padding: 12rpx 28rpx;
+  padding: 10rpx 26rpx;
   border-radius: 30rpx;
   margin: 0;
   line-height: 1.5;
 }
-.vip-tag {
+.badge-synced {
   background: rgba(56, 189, 248, 0.15);
   border: 1px solid rgba(56, 189, 248, 0.4);
   color: #38bdf8;
@@ -99,156 +97,132 @@
   border-radius: 20rpx;
 }
 
-.child-switcher {
-  margin-top: 24rpx;
+.child-picker {
+  margin-top: 22rpx;
   padding-top: 20rpx;
-  border-top: 1px solid #334155;
+  border-top: 1px solid #1e293b;
   display: flex;
   align-items: center;
 }
-.switcher-label {
+.picker-label {
   font-size: 22rpx;
   color: #94a3b8;
   margin-right: 15rpx;
 }
-.child-tabs {
+.picker-tabs {
   display: flex;
   gap: 15rpx;
 }
-.child-tab {
-  padding: 8rpx 20rpx;
+.tab-item {
+  padding: 8rpx 22rpx;
   border-radius: 16rpx;
   font-size: 22rpx;
-  background: #0f172a;
+  background: #0b0f19;
   color: #94a3b8;
-  border: 1px solid #334155;
+  border: 1px solid #1e293b;
 }
-.child-tab.active {
-  background: #3b82f6;
+.tab-item.selected {
+  background: #2563eb;
   color: #ffffff;
-  border-color: #60a5fa;
-  font-weight: bold;
+  border-color: #3b82f6;
+  font-weight: 700;
 }
 
-/* Track Cards */
-.tracks-section {
+/* Tracks */
+.tracks-wrapper {
   margin-bottom: 40rpx;
 }
-.section-title {
-  font-size: 28rpx;
+.tracks-heading {
+  font-size: 26rpx;
   font-weight: 700;
-  color: #cbd5e1;
-  margin-bottom: 24rpx;
-  padding-left: 10rpx;
+  color: #94a3b8;
+  margin-bottom: 22rpx;
+  padding-left: 8rpx;
 }
-.track-card {
-  position: relative;
-  background: #1e293b;
-  border-radius: 32rpx;
-  padding: 36rpx 30rpx;
-  margin-bottom: 28rpx;
-  display: flex;
-  align-items: flex-start;
-  box-shadow: 0 15rpx 35rpx rgba(0, 0, 0, 0.4);
-  border: 1.5px solid #334155;
-  transition: all 0.2s;
+.track-box {
+  background: #131c2e;
+  border-radius: 30rpx;
+  padding: 32rpx 28rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 15rpx 30rpx rgba(0, 0, 0, 0.4);
+  border: 1.5px solid #1e293b;
 }
-.card-eyebrain {
-  border-color: rgba(56, 189, 248, 0.4);
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+.track-eyebrain {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(19, 28, 46, 0.95) 0%, rgba(11, 15, 25, 0.95) 100%);
 }
-.card-posture {
-  border-color: rgba(16, 185, 129, 0.45);
-  background: linear-gradient(135deg, rgba(6, 78, 59, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+.track-posture {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.2) 0%, rgba(11, 15, 25, 0.95) 100%);
 }
-.track-icon {
-  font-size: 60rpx;
-  margin-right: 24rpx;
-  margin-top: 10rpx;
-}
-.track-content {
-  flex: 1;
-}
-.track-badge {
+.track-badge-pill {
   display: inline-block;
   font-size: 18rpx;
   font-weight: 700;
   padding: 4rpx 14rpx;
   border-radius: 12rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: 14rpx;
 }
-.badge-blue {
-  background: rgba(56, 189, 248, 0.2);
+.pill-blue {
+  background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.35);
 }
-.badge-green {
-  background: rgba(16, 185, 129, 0.2);
+.pill-green {
+  background: rgba(16, 185, 129, 0.15);
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.35);
 }
-.track-title {
-  font-size: 34rpx;
+.track-main-row {
+  display: flex;
+  align-items: center;
+}
+.track-emojis {
+  font-size: 54rpx;
+  margin-right: 22rpx;
+}
+.track-info {
+  flex: 1;
+}
+.track-headline {
+  font-size: 32rpx;
   font-weight: 800;
   color: #ffffff;
 }
-.track-desc {
+.track-summary {
   font-size: 22rpx;
   color: #94a3b8;
-  margin: 10rpx 0 20rpx;
+  margin-top: 8rpx;
   line-height: 1.5;
 }
-.track-meta {
+.track-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 16rpx;
+  margin-top: 20rpx;
 }
-.meta-tag {
+.footer-tip {
   font-size: 20rpx;
   color: #cbd5e1;
 }
-.meta-action {
+.footer-arrow {
   font-size: 22rpx;
   font-weight: 700;
   color: #38bdf8;
 }
-.card-posture .meta-action {
+.arrow-green {
   color: #34d399;
 }
 
-/* Bottom Tools */
-.bottom-tools {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  padding: 24rpx 10rpx;
+/* Legal Non-Medical Footnote */
+.legal-footnote {
+  text-align: center;
+  padding: 20rpx 10rpx;
 }
-.tool-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.tool-icon {
-  font-size: 38rpx;
-  margin-bottom: 6rpx;
-}
-.tool-name {
-  font-size: 22rpx;
-  color: #e2e8f0;
-  font-weight: 600;
-}
-.tool-badge {
-  font-size: 18rpx;
-  color: #f59e0b;
-  margin-top: 4rpx;
-}
-.tool-divider {
-  width: 1px;
-  height: 50rpx;
-  background: #334155;
+.legal-footnote text {
+  font-size: 20rpx;
+  color: #64748b;
+  letter-spacing: 1rpx;
 }
